@@ -1,0 +1,24 @@
+{
+	"compilerOptions": {
+		"outDir": "./ts-build",
+		"noEmit": true,
+		"strict": true,
+		"target": "ESNext",
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"allowJs": true,
+		"jsx": "preserve",
+		"esModuleInterop": true,
+		"moduleResolution": "bundler",
+		"forceConsistentCasingInFileNames": true,
+		"useUnknownInCatchVariables": true,
+		"noImplicitOverride": true,
+		"verbatimModuleSyntax": true,
+		"paths": {
+			"test/*": ["test/*"],
+			"~/*": ["src/*"]
+		},
+		"typeRoots": ["src/types", "node_modules/@types"],
+		"baseUrl": "."
+	},
+	"include": ["*.ts", "main.ts", "router.ts"]
+}
