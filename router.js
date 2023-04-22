@@ -1,14 +1,32 @@
 "use strict";
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = require("fs");
-var http_1 = require("http");
-function routeDir(dirAdress, port) {
-    var files = mapFileRoutes(dirAdress);
-    var routes = files.map(function (file) { return getRoute(file, dirAdress); });
-    routeFiles(routes, port);
-}
-exports.default = routeDir;
-function mapFileRoutes(dir) {
+var Router = /** @class */ (function () {
+    function Router() {
+    }
+    Router.prototype.routeFallback = function (file, url, func) {
+        url = url + "fallback.html";
+        var route = { file: file, url: url, backendFunc: func };
+        this.routes = this.routes ? __spreadArray(__spreadArray([], this.routes, true), [route], false) : [route];
+    };
+    Router.prototype.routeDir = function (dir) {
+        var files = mapFilesIn(dir);
+        var routes = files.map(function (file) { return getRoute(file, dir); });
+        this.routes = this.routes ? __spreadArray(__spreadArray([], this.routes, true), routes, true) : routes;
+    };
+    return Router;
+}());
+exports.default = Router;
+function mapFilesIn(dir) {
     var items = (0, fs_1.readdirSync)(dir);
     var files = [];
     items.forEach(function (item) {
@@ -17,37 +35,19 @@ function mapFileRoutes(dir) {
         if (isFile(item))
             files.push(fullAdress);
         else
-            files.push.apply(files, mapFileRoutes(fullAdress));
+            files.push.apply(files, mapFilesIn(fullAdress));
     });
     return files;
 }
 var isFile = function (adress) { return adress.includes("."); };
-function getRoute(fileAbsolutAdress, rootDir) {
-    var relativeAdress = fileAbsolutAdress.replace(rootDir, "");
-    var urlRelativeAdress = formatUrl(relativeAdress);
-    return { fileAbsolutAdress: fileAbsolutAdress, urlRelativeAdress: urlRelativeAdress };
+function getRoute(file, rootDir) {
+    var relativeAdress = file.replace(rootDir, "");
+    var url = formatUrl(relativeAdress);
+    return { file: file, url: url };
 }
 function formatUrl(url) {
     url = url.replace("\\", "/");
     url = url.includes("\\") ? formatUrl(url) : url;
     url = url.replace("index.html", "");
     return url;
-}
-function routeFiles(routes, port) {
-    port = port !== null && port !== void 0 ? port : 8080;
-    (0, http_1.createServer)(function (request, response) {
-        var routeExist = false;
-        routes.forEach(function (route) {
-            if (request.url == route.urlRelativeAdress) {
-                routeExist = true;
-                response.statusCode = 200;
-                response.end((0, fs_1.readFileSync)(route.fileAbsolutAdress));
-            }
-        });
-        if (!routeExist) {
-            response.statusCode = 404;
-            response.end("404, nothing to see here");
-        }
-    }).listen(port);
-    console.log("server on and listining on port", port);
 }

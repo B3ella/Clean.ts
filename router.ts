@@ -1,20 +1,26 @@
-import { readFileSync, readdirSync } from "fs";
-import { createServer } from "http";
+import { readdirSync } from "fs";
+import type { Iroute } from "./server";
 
-interface Iroute {
-	fileAbsolutAdress: string;
-	urlRelativeAdress: string;
+export default class Router {
+	routes: Iroute[] | undefined;
+
+	routeFallback(file: string, url: string, func: (arg: string) => object) {
+		url = url + "fallback.html";
+
+		const route = { file, url, backendFunc: func } as Iroute;
+
+		this.routes = this.routes ? [...this.routes, route] : [route];
+	}
+
+	routeDir(dir: string) {
+		const files = mapFilesIn(dir);
+		const routes = files.map((file) => getRoute(file, dir));
+
+		this.routes = this.routes ? [...this.routes, ...routes] : routes;
+	}
 }
 
-export default function routeDir(dirAdress: string, port?: number) {
-	const files = mapFileRoutes(dirAdress);
-
-	const routes = files.map((file) => getRoute(file, dirAdress));
-
-	routeFiles(routes, port);
-}
-
-function mapFileRoutes(dir: string) {
+function mapFilesIn(dir: string) {
 	const items = readdirSync(dir);
 	const files: string[] = [];
 
@@ -23,7 +29,7 @@ function mapFileRoutes(dir: string) {
 		const fullAdress = dir + dirDivision + item;
 
 		if (isFile(item)) files.push(fullAdress);
-		else files.push(...mapFileRoutes(fullAdress));
+		else files.push(...mapFilesIn(fullAdress));
 	});
 
 	return files;
@@ -31,11 +37,11 @@ function mapFileRoutes(dir: string) {
 
 const isFile = (adress: string) => adress.includes(".");
 
-function getRoute(fileAbsolutAdress: string, rootDir: string): Iroute {
-	const relativeAdress = fileAbsolutAdress.replace(rootDir, "");
-	const urlRelativeAdress = formatUrl(relativeAdress);
+function getRoute(file: string, rootDir: string): Iroute {
+	const relativeAdress = file.replace(rootDir, "");
+	const url = formatUrl(relativeAdress);
 
-	return { fileAbsolutAdress, urlRelativeAdress };
+	return { file, url };
 }
 
 function formatUrl(url: string): string {
@@ -45,26 +51,4 @@ function formatUrl(url: string): string {
 	url = url.replace("index.html", "");
 
 	return url;
-}
-
-function routeFiles(routes: Iroute[], port?: number) {
-	port = port ?? 8080;
-	createServer((request, response) => {
-		let routeExist = false;
-
-		routes.forEach((route) => {
-			if (request.url == route.urlRelativeAdress) {
-				routeExist = true;
-				response.statusCode = 200;
-				response.end(readFileSync(route.fileAbsolutAdress));
-			}
-		});
-
-		if (!routeExist) {
-			response.statusCode = 404;
-			response.end("404, nothing to see here");
-		}
-	}).listen(port);
-
-	console.log("server on and listining on port", port);
 }
