@@ -7,5 +7,5 @@ var router = new router_1.default(dirName);
 function back(str) {
     return { name: str, verb: "do" };
 }
-router.routeFallback(dirName + "\\fallback.html", "/", back);
+router.routeFallback("/", back);
 (0, server_1.default)(router, 8080);

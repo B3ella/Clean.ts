@@ -26,10 +26,6 @@ function serve(_a, port) {
             return;
         }
         var _a = getFallback(request.url), fallbackArg = _a.fallbackArg, fallbackUrl = _a.fallbackUrl;
-        if (!dynamicRoutes) {
-            respondWithPageNotFound();
-            return;
-        }
         var dynamicResponse = dynamicRoutes[fallbackUrl];
         if (dynamicResponse) {
             var data = dynamicResponse.func(fallbackArg);

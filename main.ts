@@ -9,6 +9,6 @@ function back(str: string) {
 	return { name: str, verb: "do" };
 }
 
-router.routeFallback(dirName + "\\fallback.html", "/", back);
+router.routeFallback("/", back);
 
-serve(router, 8080)
+serve(router, 8080);

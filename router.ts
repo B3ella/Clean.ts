@@ -4,20 +4,31 @@ import type { IDynamicRoutes, IStaticRoutes } from "./builder";
 export default class Router {
 	staticRoutes: IStaticRoutes;
 	dynamicRoutes: IDynamicRoutes;
+	rootDir: string;
 
 	constructor(dir: string) {
+		this.rootDir = dir;
 		this.staticRoutes = this.routeDir(dir);
 		this.dynamicRoutes = {};
 	}
 
 	routeFallback(
-		file: string,
 		url: string,
 		func: (arg: string) => { [key: string]: string }
 	) {
+		const file = this.urlToRelativeFile(url);
+
 		url = url + "fallback.html";
 
 		this.dynamicRoutes[url] = { file, func };
+	}
+
+	urlToRelativeFile(url: string) {
+		const filePath = url.replace("/", dirDivision);
+
+		url = this.rootDir + filePath + "fallback.html";
+
+		return url;
 	}
 
 	private routeDir(dir: string) {
@@ -37,12 +48,13 @@ export default class Router {
 	}
 }
 
+const dirDivision = process.platform.startsWith("win") ? "\\" : "/";
+
 function mapFilesIn(dir: string) {
 	const items = readdirSync(dir);
 	const files: string[] = [];
 
 	items.forEach((item) => {
-		const dirDivision = process.platform.startsWith("win") ? "\\" : "/";
 		const fullAdress = dir + dirDivision + item;
 
 		if (isFile(item)) files.push(fullAdress);
