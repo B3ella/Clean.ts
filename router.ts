@@ -1,8 +1,8 @@
 import { readdirSync } from "fs";
-import type { IDynamicRoutes, IStaticRoutes } from "./builder";
+import type { IDynamicRoutes, IStaticRoutes, stringHashmap } from "./builder";
 
 export default class Router {
-	staticRoutes: IStaticRoutes;
+	staticRoutes: stringHashmap;
 	dynamicRoutes: IDynamicRoutes;
 	rootDir: string;
 
@@ -12,10 +12,7 @@ export default class Router {
 		this.dynamicRoutes = {};
 	}
 
-	routeFallback(
-		url: string,
-		func: (arg: string) => { [key: string]: string }
-	) {
+	routeFallback(url: string, func: (arg: string) => stringHashmap) {
 		const file = this.urlToRelativeFile(url);
 
 		url = url + "fallback.html";
@@ -35,7 +32,7 @@ export default class Router {
 		const files = mapFilesIn(dir);
 		const urls = files.map((file) => getRoute(file, dir));
 
-		const routes = {} as IStaticRoutes;
+		const routes = {} as stringHashmap;
 
 		for (let i = 0; i < urls.length; i++) {
 			const url = urls[i];

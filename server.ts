@@ -1,10 +1,10 @@
 import { createServer } from "http";
 import { readFileSync } from "node:fs";
-import type { IDynamicRoutes, IStaticRoutes } from "./builder";
+import type { IDynamicRoutes, StringHashmap } from "./builder";
 import { htmlDynamcBuilde } from "./builder";
 
 interface IServeParams {
-	staticRoutes: IStaticRoutes;
+	staticRoutes: StringHashmap;
 	dynamicRoutes: IDynamicRoutes;
 }
 export default function serve(
