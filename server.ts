@@ -4,7 +4,7 @@ import type { IDynamicRoutes, IStaticRoutes } from "./builder";
 
 interface IServeParams {
 	staticRoutes: IStaticRoutes;
-	dynamicRoutes?: IDynamicRoutes;
+	dynamicRoutes: IDynamicRoutes;
 }
 export default function serve(
 	{ staticRoutes, dynamicRoutes }: IServeParams,
@@ -39,11 +39,6 @@ export default function serve(
 		}
 
 		const { fallbackArg, fallbackUrl } = getFallback(request.url);
-
-		if (!dynamicRoutes) {
-			respondWithPageNotFound();
-			return;
-		}
 
 		const dynamicResponse = dynamicRoutes[fallbackUrl];
 
