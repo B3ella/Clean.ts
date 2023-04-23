@@ -1,24 +1,38 @@
 import { readdirSync } from "fs";
-import type { Iroute } from "./server";
+import type { IDynamicRoutes, IStaticRoutes } from "./builder";
 
 export default class Router {
-	routes: Iroute[];
+	staticRoutes: IStaticRoutes;
+	dynamicRoutes: IDynamicRoutes;
 
 	constructor(dir: string) {
-		this.routes = this.routeDir(dir);
+		this.staticRoutes = this.routeDir(dir);
+		this.dynamicRoutes = {};
 	}
 
-	routeFallback(file: string, url: string, func: (arg: string) => object) {
+	routeFallback(
+		file: string,
+		url: string,
+		func: (arg: string) => { [key: string]: string }
+	) {
 		url = url + "fallback.html";
 
-		const route = { file, url, backendFunc: func } as Iroute;
-
-		this.routes = this.routes ? [...this.routes, route] : [route];
+		this.dynamicRoutes[url] = { file, func };
 	}
 
 	private routeDir(dir: string) {
 		const files = mapFilesIn(dir);
-		const routes = files.map((file) => getRoute(file, dir));
+		const urls = files.map((file) => getRoute(file, dir));
+
+		const routes = {} as IStaticRoutes;
+
+		for (let i = 0; i < urls.length; i++) {
+			const url = urls[i];
+			const file = files[i];
+
+			routes[url] = file;
+		}
+
 		return routes;
 	}
 }
@@ -40,11 +54,11 @@ function mapFilesIn(dir: string) {
 
 const isFile = (adress: string) => adress.includes(".");
 
-function getRoute(file: string, rootDir: string): Iroute {
+function getRoute(file: string, rootDir: string) {
 	const relativeAdress = file.replace(rootDir, "");
 	const url = formatUrl(relativeAdress);
 
-	return { file, url };
+	return url;
 }
 
 function formatUrl(url: string): string {

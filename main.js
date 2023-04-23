@@ -8,4 +8,4 @@ function back(str) {
     return { name: str, verb: "do" };
 }
 router.routeFallback(dirName + "\\fallback.html", "/", back);
-router.routes ? (0, server_1.default)(router.routes, 8080) : null;
+(0, server_1.default)(router, 8080);

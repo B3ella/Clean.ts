@@ -1,13 +1,15 @@
 import { createServer } from "http";
 import { readFileSync } from "node:fs";
+import type { IDynamicRoutes, IStaticRoutes } from "./builder";
 
-export interface Iroute {
-	file: string;
-	url: string;
-	backendFunc?: (arg: string) => object;
+interface IServeParams {
+	staticRoutes: IStaticRoutes;
+	dynamicRoutes?: IDynamicRoutes;
 }
-
-export default function serve(routes: Iroute[], port?: number) {
+export default function serve(
+	{ staticRoutes, dynamicRoutes }: IServeParams,
+	port?: number
+) {
 	port = port ?? 8080;
 
 	createServer((request, response) => {
@@ -29,27 +31,29 @@ export default function serve(routes: Iroute[], port?: number) {
 			return;
 		}
 
-		routes.forEach((route) => {
-			if (route.url === request.url) {
-				const responseFile = readFileSync(route.file);
-				resondWithPageFound(responseFile);
-			}
-		});
+		const responseFile = staticRoutes[request.url];
 
-		if (routeExist) return;
+		if (responseFile) {
+			resondWithPageFound(readFileSync(responseFile));
+			return;
+		}
 
 		const { fallbackArg, fallbackUrl } = getFallback(request.url);
 
-		routes.forEach((route) => {
-			if (route.url === fallbackUrl && route.backendFunc) {
-				const data = route.backendFunc(fallbackArg);
+		if (!dynamicRoutes) {
+			respondWithPageNotFound();
+			return;
+		}
 
-				const htmlResponse = htmlBuilder(route.file, data);
+		const dynamicResponse = dynamicRoutes[fallbackUrl];
 
-				resondWithPageFound(htmlResponse);
-				return;
-			}
-		});
+		if (dynamicResponse) {
+			const data = dynamicResponse.func(fallbackArg);
+			const htmlResponse = htmlBuilder(dynamicResponse.file, data);
+
+			resondWithPageFound(htmlResponse);
+			return;
+		}
 
 		if (!routeExist) respondWithPageNotFound();
 	}).listen(port);

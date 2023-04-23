@@ -11,4 +11,4 @@ function back(str: string) {
 
 router.routeFallback(dirName + "\\fallback.html", "/", back);
 
-router.routes ? serve(router.routes, 8080) : null;
+serve(router, 8080)

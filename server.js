@@ -2,7 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var http_1 = require("http");
 var node_fs_1 = require("node:fs");
-function serve(routes, port) {
+function serve(_a, port) {
+    var staticRoutes = _a.staticRoutes, dynamicRoutes = _a.dynamicRoutes;
     port = port !== null && port !== void 0 ? port : 8080;
     (0, http_1.createServer)(function (request, response) {
         var routeExist = false;
@@ -19,23 +20,23 @@ function serve(routes, port) {
             respondWithPageNotFound();
             return;
         }
-        routes.forEach(function (route) {
-            if (route.url === request.url) {
-                var responseFile = (0, node_fs_1.readFileSync)(route.file);
-                resondWithPageFound(responseFile);
-            }
-        });
-        if (routeExist)
+        var responseFile = staticRoutes[request.url];
+        if (responseFile) {
+            resondWithPageFound((0, node_fs_1.readFileSync)(responseFile));
             return;
+        }
         var _a = getFallback(request.url), fallbackArg = _a.fallbackArg, fallbackUrl = _a.fallbackUrl;
-        routes.forEach(function (route) {
-            if (route.url === fallbackUrl && route.backendFunc) {
-                var data = route.backendFunc(fallbackArg);
-                var htmlResponse = htmlBuilder(route.file, data);
-                resondWithPageFound(htmlResponse);
-                return;
-            }
-        });
+        if (!dynamicRoutes) {
+            respondWithPageNotFound();
+            return;
+        }
+        var dynamicResponse = dynamicRoutes[fallbackUrl];
+        if (dynamicResponse) {
+            var data = dynamicResponse.func(fallbackArg);
+            var htmlResponse = htmlBuilder(dynamicResponse.file, data);
+            resondWithPageFound(htmlResponse);
+            return;
+        }
         if (!routeExist)
             respondWithPageNotFound();
     }).listen(port);
