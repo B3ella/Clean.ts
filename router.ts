@@ -2,7 +2,11 @@ import { readdirSync } from "fs";
 import type { Iroute } from "./server";
 
 export default class Router {
-	routes: Iroute[] | undefined;
+	routes: Iroute[];
+
+	constructor(dir: string) {
+		this.routes = this.routeDir(dir);
+	}
 
 	routeFallback(file: string, url: string, func: (arg: string) => object) {
 		url = url + "fallback.html";
@@ -12,11 +16,10 @@ export default class Router {
 		this.routes = this.routes ? [...this.routes, route] : [route];
 	}
 
-	routeDir(dir: string) {
+	private routeDir(dir: string) {
 		const files = mapFilesIn(dir);
 		const routes = files.map((file) => getRoute(file, dir));
-
-		this.routes = this.routes ? [...this.routes, ...routes] : routes;
+		return routes;
 	}
 }
 

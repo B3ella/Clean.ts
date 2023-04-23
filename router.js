@@ -11,7 +11,8 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = require("fs");
 var Router = /** @class */ (function () {
-    function Router() {
+    function Router(dir) {
+        this.routes = this.routeDir(dir);
     }
     Router.prototype.routeFallback = function (file, url, func) {
         url = url + "fallback.html";
@@ -21,7 +22,7 @@ var Router = /** @class */ (function () {
     Router.prototype.routeDir = function (dir) {
         var files = mapFilesIn(dir);
         var routes = files.map(function (file) { return getRoute(file, dir); });
-        this.routes = this.routes ? __spreadArray(__spreadArray([], this.routes, true), routes, true) : routes;
+        return routes;
     };
     return Router;
 }());
