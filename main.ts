@@ -7,4 +7,10 @@ const router = new Router();
 
 router.routeDir(dirName);
 
+function back(str: string) {
+	return { name: str, verb: "do" };
+}
+
+router.routeFallback(dirName + "\\fallback.html", "/", back);
+
 router.routes ? serve(router.routes, 8080) : null;
