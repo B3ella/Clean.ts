@@ -1,5 +1,6 @@
 import Router from "./router.ts";
 import { describe, expect, it } from "vitest";
+import { staticBuilder } from "./builder.ts";
 
 describe("#router", () => {
 	it("static methods", () => {
@@ -18,5 +19,10 @@ describe("#router", () => {
 
 		expect(Router.replaceAllOnFor("a", "aaaaaaaa", "b")).toBe("bbbbbbbb");
 		expect(Router.replaceAllOnFor("a", "aaccaaaa", "b")).toBe("bbccbbbb");
+	});
+});
+describe("#builder", () => {
+	it("", () => {
+		expect(staticBuilder({ a: "a.html" }, "a")).toBe("<h1>test</h1><h2>funciona</h2>");
 	});
 });

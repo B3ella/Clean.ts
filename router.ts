@@ -1,7 +1,12 @@
 import { readdirSync } from "fs";
-import type { IDynamicRoutes, StringHashmap } from "./builder";
+import {
+	staticBuilder,
+	type IDynamicRoutes,
+	type StringHashmap,
+} from "./builder";
 
 export default class Router {
+	urls: string[] | undefined;
 	staticRoutes: StringHashmap;
 	dynamicRoutes: IDynamicRoutes;
 	rootDir: string;
@@ -11,11 +16,17 @@ export default class Router {
 		this.rootDir = dir;
 		this.staticRoutes = this.routeDir();
 		this.dynamicRoutes = {};
+
+		this.urls?.forEach((url) => {
+			staticBuilder(this.staticRoutes, url, Router.dirDivision);
+		});
 	}
 	private routeDir() {
 		const dir = this.rootDir;
 		const files = Router.mapFilesIn(dir);
 		const urls = files.map((file) => this.getRoute(file));
+
+		this.urls = urls;
 
 		const routes = {} as StringHashmap;
 
