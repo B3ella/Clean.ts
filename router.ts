@@ -5,32 +5,17 @@ export default class Router {
 	staticRoutes: StringHashmap;
 	dynamicRoutes: IDynamicRoutes;
 	rootDir: string;
+	static dirDivision = process.platform.startsWith("win") ? "\\" : "/";
 
 	constructor(dir: string) {
 		this.rootDir = dir;
-		this.staticRoutes = this.routeDir(dir);
+		this.staticRoutes = this.routeDir();
 		this.dynamicRoutes = {};
 	}
-
-	routeFallback(url: string, func: (arg: string) => StringHashmap) {
-		const file = this.urlToRelativeFile(url);
-
-		url = url + "fallback.html";
-
-		this.dynamicRoutes[url] = { file, func };
-	}
-
-	urlToRelativeFile(url: string) {
-		const filePath = url.replace("/", dirDivision);
-
-		url = this.rootDir + filePath + "fallback.html";
-
-		return url;
-	}
-
-	private routeDir(dir: string) {
-		const files = mapFilesIn(dir);
-		const urls = files.map((file) => getRoute(file, dir));
+	private routeDir() {
+		const dir = this.rootDir;
+		const files = Router.mapFilesIn(dir);
+		const urls = files.map((file) => this.getRoute(file));
 
 		const routes = {} as StringHashmap;
 
@@ -43,38 +28,47 @@ export default class Router {
 
 		return routes;
 	}
-}
+	static mapFilesIn(dir: string) {
+		const items = readdirSync(dir);
+		const files: string[] = [];
 
-const dirDivision = process.platform.startsWith("win") ? "\\" : "/";
+		items.forEach((item) => {
+			const fullAdress = dir + Router.dirDivision + item;
 
-function mapFilesIn(dir: string) {
-	const items = readdirSync(dir);
-	const files: string[] = [];
+			if (Router.isFile(item)) files.push(fullAdress);
+			else files.push(...this.mapFilesIn(fullAdress));
+		});
 
-	items.forEach((item) => {
-		const fullAdress = dir + dirDivision + item;
+		return files;
+	}
+	static isFile(adress: string) {
+		return adress.includes(".");
+	}
+	getRoute(file: string) {
+		const rootDir = this.rootDir;
+		const relativeAdress = file.replace(rootDir, "");
+		const url = Router.formatUrl(relativeAdress);
 
-		if (isFile(item)) files.push(fullAdress);
-		else files.push(...mapFilesIn(fullAdress));
-	});
+		return url;
+	}
+	static formatUrl(url: string): string {
+		url = Router.replaceAllOnFor("\\", url, "/");
+		return url.replace("index.html", "");
+	}
+	static replaceAllOnFor(t: string, str: string, sub: string): string {
+		str = str.replace(t, sub);
+		return str.includes(t) ? this.replaceAllOnFor(t, str, sub) : str;
+	}
 
-	return files;
-}
+	routeFallback(url: string, func: (arg: string) => StringHashmap) {
+		const file = this.urlToRelativeFile(url);
 
-const isFile = (adress: string) => adress.includes(".");
+		url = url + "fallback.html";
 
-function getRoute(file: string, rootDir: string) {
-	const relativeAdress = file.replace(rootDir, "");
-	const url = formatUrl(relativeAdress);
-
-	return url;
-}
-
-function formatUrl(url: string): string {
-	url = url.replace("\\", "/");
-	url = url.includes("\\") ? formatUrl(url) : url;
-
-	url = url.replace("index.html", "");
-
-	return url;
+		this.dynamicRoutes[url] = { file, func };
+	}
+	urlToRelativeFile(url: string) {
+		const filePath = Router.replaceAllOnFor("/", url, Router.dirDivision);
+		return this.rootDir + filePath + "fallback.html";
+	}
 }
