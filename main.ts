@@ -1,6 +1,5 @@
 import serve from "./server";
 import Router from "./router";
-import { staticBuilder } from "./builder";
 
 const dirName = __dirname + "\\public";
 

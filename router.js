@@ -4,28 +4,25 @@ var fs_1 = require("fs");
 var builder_1 = require("./builder");
 var Router = /** @class */ (function () {
     function Router(dir) {
-        var _this = this;
-        var _a;
         this.rootDir = dir;
-        this.staticRoutes = this.routeDir();
+        var _a = this.routeDir(), staticRoutes = _a.staticRoutes, urls = _a.urls;
+        var dirDiv = Router.dirDivision;
+        urls.forEach(function (url) { return (0, builder_1.staticBuilder)(staticRoutes, url, dirDiv); });
+        this.urls = urls;
+        this.staticRoutes = staticRoutes;
         this.dynamicRoutes = {};
-        (_a = this.urls) === null || _a === void 0 ? void 0 : _a.forEach(function (url) {
-            (0, builder_1.staticBuilder)(_this.staticRoutes, url, Router.dirDivision);
-        });
     }
     Router.prototype.routeDir = function () {
         var _this = this;
-        var dir = this.rootDir;
-        var files = Router.mapFilesIn(dir);
+        var files = Router.mapFilesIn(this.rootDir);
         var urls = files.map(function (file) { return _this.getRoute(file); });
-        this.urls = urls;
         var routes = {};
         for (var i = 0; i < urls.length; i++) {
             var url = urls[i];
             var file = files[i];
             routes[url] = file;
         }
-        return routes;
+        return { staticRoutes: routes, urls: urls };
     };
     Router.mapFilesIn = function (dir) {
         var _this = this;
@@ -54,6 +51,8 @@ var Router = /** @class */ (function () {
         return url.replace("index.html", "");
     };
     Router.replaceAllOnFor = function (t, str, sub) {
+        if (t == sub)
+            return str;
         str = str.replace(t, sub);
         return str.includes(t) ? this.replaceAllOnFor(t, str, sub) : str;
     };

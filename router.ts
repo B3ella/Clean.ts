@@ -6,7 +6,7 @@ import {
 } from "./builder";
 
 export default class Router {
-	urls: string[] | undefined;
+	urls: string[];
 	staticRoutes: StringHashmap;
 	dynamicRoutes: IDynamicRoutes;
 	rootDir: string;
@@ -14,19 +14,18 @@ export default class Router {
 
 	constructor(dir: string) {
 		this.rootDir = dir;
-		this.staticRoutes = this.routeDir();
-		this.dynamicRoutes = {};
+		const { staticRoutes, urls } = this.routeDir();
 
-		this.urls?.forEach((url) => {
-			staticBuilder(this.staticRoutes, url, Router.dirDivision);
-		});
-	}
-	private routeDir() {
-		const dir = this.rootDir;
-		const files = Router.mapFilesIn(dir);
-		const urls = files.map((file) => this.getRoute(file));
+		const dirDiv = Router.dirDivision;
+		urls.forEach((url) => staticBuilder(staticRoutes, url, dirDiv));
 
 		this.urls = urls;
+		this.staticRoutes = staticRoutes;
+		this.dynamicRoutes = {};
+	}
+	private routeDir() {
+		const files = Router.mapFilesIn(this.rootDir);
+		const urls = files.map((file) => this.getRoute(file));
 
 		const routes = {} as StringHashmap;
 
@@ -37,7 +36,7 @@ export default class Router {
 			routes[url] = file;
 		}
 
-		return routes;
+		return { staticRoutes: routes, urls };
 	}
 	static mapFilesIn(dir: string) {
 		const items = readdirSync(dir);
@@ -67,6 +66,8 @@ export default class Router {
 		return url.replace("index.html", "");
 	}
 	static replaceAllOnFor(t: string, str: string, sub: string): string {
+		if (t == sub) return str;
+
 		str = str.replace(t, sub);
 		return str.includes(t) ? this.replaceAllOnFor(t, str, sub) : str;
 	}
