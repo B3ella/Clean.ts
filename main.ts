@@ -1,13 +1,12 @@
-import serve from "./server";
-import Router from "./router";
+import Server from "./server";
 
 const dirName = __dirname + "\\public";
 
-const router = new Router(dirName);
+const server = new Server(dirName);
 
 function back(str: string) {
 	return { name: str, verb: "do" };
 }
-router.routeFallback("/", back);
+server.routeFallback("/", back);
 
-serve(router, 8080);
+server.serve();

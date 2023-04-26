@@ -3,9 +3,53 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var http_1 = require("http");
 var node_fs_1 = require("node:fs");
 var builder_1 = require("./builder");
+var builder_2 = require("./builder");
+var router_1 = require("./router");
+var Server = /** @class */ (function () {
+    function Server(dir, port) {
+        this.port = port !== null && port !== void 0 ? port : 8080;
+        this.rootDir = dir;
+        var _a = this.routeDir(), staticRoutes = _a.staticRoutes, urls = _a.urls;
+        var dirDiv = router_1.dirDivision;
+        urls.forEach(function (url) { return (0, builder_1.staticBuilder)(staticRoutes, url, dirDiv); });
+        this.urls = urls;
+        this.staticRoutes = staticRoutes;
+        this.dynamicRoutes = {};
+    }
+    Server.prototype.routeDir = function () {
+        var _this = this;
+        var files = (0, router_1.mapFilesIn)(this.rootDir);
+        var urls = files.map(function (file) { return _this.getRoute(file); });
+        var routes = {};
+        for (var i = 0; i < urls.length; i++) {
+            var url = urls[i];
+            var file = files[i];
+            routes[url] = file;
+        }
+        return { staticRoutes: routes, urls: urls };
+    };
+    Server.prototype.getRoute = function (file) {
+        var relativeAdress = file.replace(this.rootDir, "");
+        return (0, router_1.formatUrl)(relativeAdress);
+    };
+    Server.prototype.routeFallback = function (url, func) {
+        var file = this.urlToRelativeFile(url);
+        url = url + "fallback.html";
+        this.dynamicRoutes[url] = { file: file, func: func };
+    };
+    Server.prototype.urlToRelativeFile = function (url) {
+        var filePath = (0, router_1.replaceAllOnFor)("/", url, router_1.dirDivision);
+        return this.rootDir + filePath + "fallback.html";
+    };
+    Server.prototype.serve = function () {
+        var _a = this, staticRoutes = _a.staticRoutes, dynamicRoutes = _a.dynamicRoutes;
+        serve({ staticRoutes: staticRoutes, dynamicRoutes: dynamicRoutes }, this.port);
+    };
+    return Server;
+}());
+exports.default = Server;
 function serve(_a, port) {
     var staticRoutes = _a.staticRoutes, dynamicRoutes = _a.dynamicRoutes;
-    port = port !== null && port !== void 0 ? port : 8080;
     (0, http_1.createServer)(function (request, response) {
         var routeExist = false;
         function respondWithPageNotFound() {
@@ -30,7 +74,7 @@ function serve(_a, port) {
         var dynamicResponse = dynamicRoutes[fallbackUrl];
         if (dynamicResponse) {
             var data = dynamicResponse.func(fallbackArg);
-            var htmlResponse = (0, builder_1.htmlDynamcBuilde)(dynamicResponse.file, data);
+            var htmlResponse = (0, builder_2.htmlDynamcBuilde)(dynamicResponse.file, data);
             resondWithPageFound(htmlResponse);
             return;
         }
@@ -39,7 +83,6 @@ function serve(_a, port) {
     }).listen(port);
     console.log("server on and listining on port", port);
 }
-exports.default = serve;
 function getFallback(url) {
     var pivot = url.lastIndexOf("/") + 1;
     var fallbackArg = url.slice(pivot);

@@ -1,18 +1,82 @@
 import { createServer } from "http";
 import { readFileSync } from "node:fs";
-import type { IDynamicRoutes, StringHashmap } from "./builder";
+import {
+	staticBuilder,
+	type IDynamicRoutes,
+	type StringHashmap,
+} from "./builder";
 import { htmlDynamcBuilde } from "./builder";
+import {
+	dirDivision,
+	formatUrl,
+	isFile,
+	mapFilesIn,
+	replaceAllOnFor,
+} from "./router";
 
 interface IServeParams {
 	staticRoutes: StringHashmap;
 	dynamicRoutes: IDynamicRoutes;
 }
-export default function serve(
-	{ staticRoutes, dynamicRoutes }: IServeParams,
-	port?: number
-) {
-	port = port ?? 8080;
+export default class Server {
+	port: number;
+	urls: string[];
+	staticRoutes: StringHashmap;
+	dynamicRoutes: IDynamicRoutes;
+	rootDir: string;
 
+	constructor(dir: string, port?: number) {
+		this.port = port ?? 8080;
+		this.rootDir = dir;
+		const { staticRoutes, urls } = this.routeDir();
+
+		const dirDiv = dirDivision;
+
+		urls.forEach((url) => staticBuilder(staticRoutes, url, dirDiv));
+
+		this.urls = urls;
+		this.staticRoutes = staticRoutes;
+		this.dynamicRoutes = {};
+	}
+	private routeDir() {
+		const files = mapFilesIn(this.rootDir);
+		const urls = files.map((file) => this.getRoute(file));
+
+		const routes = {} as StringHashmap;
+
+		for (let i = 0; i < urls.length; i++) {
+			const url = urls[i];
+			const file = files[i];
+
+			routes[url] = file;
+		}
+
+		return { staticRoutes: routes, urls };
+	}
+	getRoute(file: string) {
+		const relativeAdress = file.replace(this.rootDir, "");
+		return formatUrl(relativeAdress);
+	}
+
+	routeFallback(url: string, func: (arg: string) => StringHashmap) {
+		const file = this.urlToRelativeFile(url);
+
+		url = url + "fallback.html";
+
+		this.dynamicRoutes[url] = { file, func };
+	}
+	urlToRelativeFile(url: string) {
+		const filePath = replaceAllOnFor("/", url, dirDivision);
+		return this.rootDir + filePath + "fallback.html";
+	}
+
+	serve() {
+		const { staticRoutes, dynamicRoutes } = this;
+		serve({ staticRoutes, dynamicRoutes }, this.port);
+	}
+}
+
+function serve({ staticRoutes, dynamicRoutes }: IServeParams, port: number) {
 	createServer((request, response) => {
 		let routeExist = false;
 
