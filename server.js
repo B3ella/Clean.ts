@@ -3,15 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var http_1 = require("http");
 var node_fs_1 = require("node:fs");
 var builder_1 = require("./builder");
-var builder_2 = require("./builder");
 var router_1 = require("./router");
 var Server = /** @class */ (function () {
     function Server(dir, port) {
         this.port = port !== null && port !== void 0 ? port : 8080;
         this.rootDir = dir;
         var _a = this.routeDir(), staticRoutes = _a.staticRoutes, urls = _a.urls;
-        var dirDiv = router_1.dirDivision;
-        urls.forEach(function (url) { return (0, builder_1.staticBuilder)(staticRoutes, url, dirDiv); });
+        urls.forEach(function (url) { return (0, builder_1.staticBuilder)(staticRoutes, url); });
         this.urls = urls;
         this.staticRoutes = staticRoutes;
         this.dynamicRoutes = {};
@@ -30,16 +28,12 @@ var Server = /** @class */ (function () {
     };
     Server.prototype.getRoute = function (file) {
         var relativeAdress = file.replace(this.rootDir, "");
-        return (0, router_1.formatUrl)(relativeAdress);
+        return relativeAdress.replace("index.html", "");
     };
     Server.prototype.routeFallback = function (url, func) {
-        var file = this.urlToRelativeFile(url);
-        url = url + "fallback.html";
+        url = url + "/fallback.html";
+        var file = this.rootDir + url;
         this.dynamicRoutes[url] = { file: file, func: func };
-    };
-    Server.prototype.urlToRelativeFile = function (url) {
-        var filePath = (0, router_1.replaceAllOnFor)("/", url, router_1.dirDivision);
-        return this.rootDir + filePath + "fallback.html";
     };
     Server.prototype.serve = function () {
         var _a = this, staticRoutes = _a.staticRoutes, dynamicRoutes = _a.dynamicRoutes;
@@ -74,7 +68,7 @@ function serve(_a, port) {
         var dynamicResponse = dynamicRoutes[fallbackUrl];
         if (dynamicResponse) {
             var data = dynamicResponse.func(fallbackArg);
-            var htmlResponse = (0, builder_2.htmlDynamcBuilde)(dynamicResponse.file, data);
+            var htmlResponse = (0, builder_1.htmlDynamcBuilde)(dynamicResponse.file, data);
             resondWithPageFound(htmlResponse);
             return;
         }

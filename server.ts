@@ -1,18 +1,8 @@
 import { createServer } from "http";
 import { readFileSync } from "node:fs";
-import {
-	staticBuilder,
-	type IDynamicRoutes,
-	type StringHashmap,
-} from "./builder";
-import { htmlDynamcBuilde } from "./builder";
-import {
-	dirDivision,
-	formatUrl,
-	isFile,
-	mapFilesIn,
-	replaceAllOnFor,
-} from "./router";
+import type { IDynamicRoutes, StringHashmap } from "./builder";
+import { htmlDynamcBuilde, staticBuilder } from "./builder";
+import { mapFilesIn } from "./router";
 
 interface IServeParams {
 	staticRoutes: StringHashmap;
@@ -30,9 +20,7 @@ export default class Server {
 		this.rootDir = dir;
 		const { staticRoutes, urls } = this.routeDir();
 
-		const dirDiv = dirDivision;
-
-		urls.forEach((url) => staticBuilder(staticRoutes, url, dirDiv));
+		urls.forEach((url) => staticBuilder(staticRoutes, url));
 
 		this.urls = urls;
 		this.staticRoutes = staticRoutes;
@@ -55,19 +43,14 @@ export default class Server {
 	}
 	getRoute(file: string) {
 		const relativeAdress = file.replace(this.rootDir, "");
-		return formatUrl(relativeAdress);
+		return relativeAdress.replace("index.html", "");
 	}
 
 	routeFallback(url: string, func: (arg: string) => StringHashmap) {
-		const file = this.urlToRelativeFile(url);
-
-		url = url + "fallback.html";
+		url = url + "/fallback.html";
+		const file = this.rootDir + url;
 
 		this.dynamicRoutes[url] = { file, func };
-	}
-	urlToRelativeFile(url: string) {
-		const filePath = replaceAllOnFor("/", url, dirDivision);
-		return this.rootDir + filePath + "fallback.html";
 	}
 
 	serve() {

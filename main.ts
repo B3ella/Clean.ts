@@ -1,12 +1,10 @@
 import Server from "./server";
 
-const dirName = __dirname + "\\public";
-
-const server = new Server(dirName);
+const server = new Server("public");
 
 function back(str: string) {
 	return { name: str, verb: "do" };
 }
-server.routeFallback("/", back);
+server.routeFallback("", back);
 
 server.serve();

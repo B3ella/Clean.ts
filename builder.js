@@ -23,48 +23,59 @@ function htmlDynamcBuilde(fileAdress, querryData) {
     return file;
 }
 exports.htmlDynamcBuilde = htmlDynamcBuilde;
-function staticBuilder(fileObject, url, dirDiv) {
+function staticBuilder(fileObject, url) {
     var fileAdress = fileObject[url];
     var notHtml = !fileAdress.endsWith(".html");
-    if (notHtml)
+    var isBuilt = url.includes("build");
+    var nothingToBuild = !(0, fs_1.readFileSync)(fileAdress).toString().includes("{<");
+    if (notHtml || isBuilt || nothingToBuild)
         return;
+    var file = buildFile(fileAdress);
+    var buildAdress = getBuildAdress(fileAdress);
+    (0, fs_1.writeFileSync)(buildAdress, file);
+    fileObject[url] = buildAdress;
+}
+exports.staticBuilder = staticBuilder;
+function buildFile(fileAdress) {
     var file = (0, fs_1.readFileSync)(fileAdress).toString();
-    var componentStart = "{<";
-    var componentEnd = "/>}";
-    var numberStarts = file.split(componentStart).length - 1;
-    var numberOfEnds = file.split(componentEnd).length - 1;
+    var compStart = "{<";
+    var compEnd = "/>}";
+    var numberStarts = file.split(compStart).length - 1;
+    var numberOfEnds = file.split(compEnd).length - 1;
     var sintaxError = numberOfEnds != numberStarts;
+    if (sintaxError)
+        return "error";
     var nothingToBuild = numberStarts == 0;
-    if (sintaxError || nothingToBuild)
-        return;
+    if (nothingToBuild)
+        return file;
     var lastEnd = 0;
     for (var i = 0; i < numberOfEnds; i++) {
-        var currStart = file.indexOf(componentStart, lastEnd) + componentStart.length;
-        var currEnd = file.indexOf(componentEnd, currStart);
+        var currStart = file.indexOf(compStart, lastEnd) + compStart.length;
+        var currEnd = file.indexOf(compEnd, currStart);
         var flag = file.slice(currStart, currEnd);
-        var compontent = getComponent(flag);
-        var trigger = componentStart + flag + componentEnd;
+        var compontent = buildFile(getComponentAdress(flag, fileAdress));
+        var trigger = compStart + flag + compEnd;
         file = file.replace(trigger, compontent);
         lastEnd = currEnd;
     }
-    var dirPivot = fileAdress.lastIndexOf(dirDiv) + dirDiv.length;
+    return file;
+}
+function getComponentAdress(flag, fileAdress) {
+    var src = getSrc(flag);
+    var dirPivot = fileAdress.lastIndexOf("/") + "/".length;
+    var dir = fileAdress.slice(0, dirPivot);
+    var componentAdress = dir + src;
+    return componentAdress;
+}
+function getSrc(flag) {
+    var srcFlag = 'src="';
+    var srcStart = flag.indexOf(srcFlag) + srcFlag.length;
+    var srcEnd = flag.indexOf('"', srcStart);
+    return flag.slice(srcStart, srcEnd);
+}
+function getBuildAdress(fileAdress) {
+    var dirPivot = fileAdress.lastIndexOf("/") + "/".length;
     var fileName = fileAdress.slice(dirPivot);
     var dirName = fileAdress.slice(0, dirPivot);
-    var buildAdress = dirName + "build" + fileName;
-    (0, fs_1.writeFileSync)(buildAdress, file);
-    fileObject[url] = buildAdress;
-    function getComponent(flag) {
-        var src = getSrc(flag);
-        var dirPivot = fileAdress.lastIndexOf(dirDiv) + dirDiv.length;
-        var dir = fileAdress.slice(0, dirPivot);
-        var componentAdress = dir + src;
-        return (0, fs_1.readFileSync)(componentAdress).toString();
-    }
-    function getSrc(flag) {
-        var srcFlag = 'src="';
-        var srcStart = flag.indexOf(srcFlag) + srcFlag.length;
-        var srcEnd = flag.indexOf('"', srcStart);
-        return flag.slice(srcStart, srcEnd);
-    }
+    return dirName + "build" + fileName;
 }
-exports.staticBuilder = staticBuilder;
