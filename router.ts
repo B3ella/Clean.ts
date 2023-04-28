@@ -1,6 +1,6 @@
 import staticBuilder from "./staticBuilder";
 import mapFilesIn from "./mapFiles";
-import serve from "./server";
+import serve, { createStringHashmap } from "./server";
 import type { IDynamicRoutes, StringHashmap } from "./server";
 
 export default class Router {
@@ -22,28 +22,16 @@ export default class Router {
 		this.dynamicRoutes = {};
 	}
 	private routeDir() {
-		const files = mapFilesIn(this.rootDir);
-		const urls = files.map((file) => this.getRoute(file));
+		const dir = this.rootDir;
 
-		const routes = this.createStringHashmap(urls, files);
+		const files = mapFilesIn(dir);
+		const urls = files.map((file) =>
+			file.replace(dir, "").replace("index.html", "")
+		);
+
+		const routes = createStringHashmap(urls, files);
 
 		return { staticRoutes: routes, urls };
-	}
-	getRoute(file: string) {
-		const relativeAdress = file.replace(this.rootDir, "");
-		return relativeAdress.replace("index.html", "");
-	}
-	createStringHashmap(keys: string[], values: string[]): StringHashmap {
-		const hashmap = {} as StringHashmap;
-
-		for (let i = 0; i < keys.length; i++) {
-			const key = keys[i];
-			const value = values[i];
-
-			hashmap[key] = value;
-		}
-
-		return hashmap;
 	}
 
 	routeFallback(url: string, func: (arg: string) => StringHashmap) {
