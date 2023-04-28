@@ -1,6 +1,6 @@
 import { createServer } from "http";
 import { readFileSync } from "node:fs";
-import htmlDynamcBuilde from "serverSideBuilder";
+import htmlDynamcBuilde from "./serverSideBuilder";
 
 export interface StringHashmap {
 	[key: string]: string;
