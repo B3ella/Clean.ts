@@ -18,12 +18,4 @@ function isFile(adress: string) {
 	return adress.includes(".");
 }
 
-
-function replaceAllOnFor(t: string, str: string, sub: string): string {
-	if (t == sub) return str;
-
-	str = str.replace(t, sub);
-	return str.includes(t) ? replaceAllOnFor(t, str, sub) : str;
-}
-
-export { mapFilesIn, replaceAllOnFor };
+export { mapFilesIn };
