@@ -1,6 +1,6 @@
 import { readdirSync } from "fs";
 
-function mapFilesIn(dir: string) {
+export default function mapFilesIn(dir: string) {
 	const items = readdirSync(dir);
 	const files: string[] = [];
 
@@ -17,5 +17,3 @@ function mapFilesIn(dir: string) {
 function isFile(adress: string) {
 	return adress.includes(".");
 }
-
-export { mapFilesIn };

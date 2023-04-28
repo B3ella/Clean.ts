@@ -21,5 +21,5 @@
 		"typeRoots": ["src/types", "node_modules/@types"],
 		"baseUrl": "."
 	},
-	"include": ["*.ts", "main.ts", "router.ts", "router.test.ts"]
+	"include": ["*.ts", "main.ts", "mapFiles.ts", "router.test.ts"]
 }

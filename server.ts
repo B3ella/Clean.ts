@@ -1,9 +1,8 @@
 import { createServer } from "http";
 import { readFileSync } from "node:fs";
-import type { StringHashmap } from "./staticBuilder";
-import staticBuilder from "./staticBuilder";
+import staticBuilder, { type StringHashmap } from "./staticBuilder";
 import htmlDynamcBuilde from "serverSideBuilder";
-import { mapFilesIn } from "./router";
+import mapFilesIn from "./mapFiles";
 
 interface IDynamicRoutes {
 	[key: string]: {
