@@ -1,10 +1,5 @@
 import { readFileSync, writeFileSync } from "fs";
-
-interface StringHashmap {
-	[key: string]: string;
-}
-
-export type { StringHashmap };
+import type { StringHashmap } from "./server";
 
 export default function staticBuilder(fileObject: StringHashmap, url: string) {
 	const fileAdress = fileObject[url];
