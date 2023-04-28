@@ -1,12 +1,14 @@
 import { createServer } from "http";
 import { readFileSync } from "node:fs";
-import type { IDynamicRoutes, StringHashmap } from "./builder";
+import type { StringHashmap } from "./builder";
 import { htmlDynamcBuilde, staticBuilder } from "./builder";
 import { mapFilesIn } from "./router";
 
-interface IServeParams {
-	staticRoutes: StringHashmap;
-	dynamicRoutes: IDynamicRoutes;
+interface IDynamicRoutes {
+	[key: string]: {
+		file: string;
+		func: (arg: string) => StringHashmap;
+	};
 }
 export default class Server {
 	port: number;
@@ -59,6 +61,10 @@ export default class Server {
 	}
 }
 
+interface IServeParams {
+	staticRoutes: StringHashmap;
+	dynamicRoutes: IDynamicRoutes;
+}
 function serve({ staticRoutes, dynamicRoutes }: IServeParams, port: number) {
 	createServer((request, response) => {
 		let routeExist = false;

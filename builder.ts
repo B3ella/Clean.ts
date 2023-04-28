@@ -1,17 +1,10 @@
 import { readFileSync, writeFileSync } from "fs";
 
-interface IDynamicRoutes {
-	[key: string]: {
-		file: string;
-		func: (arg: string) => StringHashmap;
-	};
-}
-
 interface StringHashmap {
 	[key: string]: string;
 }
 
-export type { IDynamicRoutes, StringHashmap };
+export type { StringHashmap };
 
 function htmlDynamcBuilde(fileAdress: string, querryData: any) {
 	let file = readFileSync(fileAdress).toString();
