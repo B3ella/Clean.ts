@@ -1,6 +1,6 @@
 import { createServer } from "http";
 import { readFileSync } from "node:fs";
-import htmlDynamcBuilde from "./serverSideBuilder";
+import buildSeverSide from "./serverSideBuilder";
 
 export interface StringHashmap {
 	[key: string]: string;
@@ -11,6 +11,10 @@ export interface IDynamicRoutes {
 		file: string;
 		func: (arg: string) => StringHashmap;
 	};
+}
+export interface htmlResponse {
+	code: number;
+	response: string | Buffer;
 }
 interface IServeParams {
 	staticRoutes: StringHashmap;
@@ -52,9 +56,9 @@ export default function serve(
 
 		if (dynamicResponse) {
 			const data = dynamicResponse.func(fallbackArg);
-			const htmlResponse = htmlDynamcBuilde(dynamicResponse.file, data);
+			const htmlResponse = buildSeverSide(dynamicResponse.file, data);
 
-			resondWithPageFound(htmlResponse);
+			resondWithPageFound(htmlResponse.response);
 			return;
 		}
 

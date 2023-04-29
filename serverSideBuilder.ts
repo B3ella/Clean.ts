@@ -1,5 +1,11 @@
 import { readFileSync } from "fs";
-export default function htmlDynamcBuilde(fileAdress: string, querryData: any) {
+
+import type { htmlResponse } from "server";
+
+export default function buildSeverSide(
+	fileAdress: string,
+	querryData: any
+): htmlResponse {
 	let file = readFileSync(fileAdress).toString();
 
 	const startChar = "{{";
@@ -10,7 +16,9 @@ export default function htmlDynamcBuilde(fileAdress: string, querryData: any) {
 
 	const allThatOpenCloses = numberOfEnds === numberStarts;
 
-	if (!allThatOpenCloses) return "problem with server, sorry";
+	if (!allThatOpenCloses) {
+		return { code: 500, response: "problem with server, sorry" };
+	}
 
 	let lastEnd = 0;
 	for (let i = 0; i < numberStarts; i++) {
@@ -22,5 +30,5 @@ export default function htmlDynamcBuilde(fileAdress: string, querryData: any) {
 		file = file.replace(trigger, substitute);
 	}
 
-	return file;
+	return { code: 200, response: file };
 }
