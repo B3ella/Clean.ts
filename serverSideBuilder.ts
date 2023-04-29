@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 
-import type { HTMLResponse } from "server";
+import type { HTMLResponse } from "./server";
 
 export default function buildSeverSide(
 	fileAdress: string,

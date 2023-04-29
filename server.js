@@ -7,23 +7,19 @@ var serverSideBuilder_1 = require("./serverSideBuilder");
 function serve(_a, port) {
     var staticRoutes = _a.staticRoutes, dynamicRoutes = _a.dynamicRoutes;
     (0, http_1.createServer)(function (request, response) {
-        var routeExist = false;
-        function respondWithPageNotFound() {
-            response.statusCode = 404;
-            response.end("404, nothing to see here");
+        function respondWith(htmlResponse) {
+            response.statusCode = htmlResponse.code;
+            response.end(htmlResponse.response);
         }
-        function resondWithPageFound(responseEnd) {
-            routeExist = true;
-            response.statusCode = 200;
-            response.end(responseEnd);
-        }
+        var notFound = { code: 404, response: "" };
         if (!request.url) {
-            respondWithPageNotFound();
+            respondWith(notFound);
             return;
         }
         var responseFile = staticRoutes[request.url];
         if (responseFile) {
-            resondWithPageFound((0, node_fs_1.readFileSync)(responseFile));
+            var response_1 = (0, node_fs_1.readFileSync)(responseFile);
+            respondWith({ response: response_1, code: 200 });
             return;
         }
         var _a = getFallback(request.url), fallbackArg = _a.fallbackArg, fallbackUrl = _a.fallbackUrl;
@@ -31,11 +27,10 @@ function serve(_a, port) {
         if (dynamicResponse) {
             var data = dynamicResponse.func(fallbackArg);
             var htmlResponse = (0, serverSideBuilder_1.default)(dynamicResponse.file, data);
-            resondWithPageFound(htmlResponse);
+            respondWith(htmlResponse);
             return;
         }
-        if (!routeExist)
-            respondWithPageNotFound();
+        respondWith(notFound);
     }).listen(port);
     console.log("server on and listining on port", port);
 }
