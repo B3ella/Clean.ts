@@ -9,7 +9,7 @@ export interface StringHashmap {
 export interface IDynamicRoutes {
 	[key: string]: {
 		file: string;
-		func: (arg: string) => StringHashmap;
+		func?: (arg: string) => StringHashmap;
 	};
 }
 export interface HTMLResponse {
@@ -50,6 +50,12 @@ export default function serve(
 		const dynamicResponse = dynamicRoutes[fallbackUrl];
 
 		if (dynamicResponse) {
+			if (!dynamicResponse.func) {
+				const response = readFileSync(dynamicResponse.file);
+				respondWith({ response, code: 200 });
+				return;
+			}
+
 			const data = dynamicResponse.func(fallbackArg);
 			const htmlResponse = buildSeverSide(dynamicResponse.file, data);
 

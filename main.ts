@@ -7,6 +7,6 @@ function back(str: string) {
 }
 router.routeFallback("", back);
 
-router.routeFallback("/pasta", back);
+router.routeFallback("/pasta");
 
 router.serve();

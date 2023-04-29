@@ -25,6 +25,11 @@ function serve(_a, port) {
         var _a = getFallback(request.url), fallbackArg = _a.fallbackArg, fallbackUrl = _a.fallbackUrl;
         var dynamicResponse = dynamicRoutes[fallbackUrl];
         if (dynamicResponse) {
+            if (!dynamicResponse.func) {
+                var response_2 = (0, node_fs_1.readFileSync)(dynamicResponse.file);
+                respondWith({ response: response_2, code: 200 });
+                return;
+            }
             var data = dynamicResponse.func(fallbackArg);
             var htmlResponse = (0, serverSideBuilder_1.default)(dynamicResponse.file, data);
             respondWith(htmlResponse);

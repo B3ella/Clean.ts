@@ -6,5 +6,5 @@ function back(str) {
     return { name: str, verb: "do" };
 }
 router.routeFallback("", back);
-router.routeFallback("/pasta", back);
+router.routeFallback("/pasta");
 router.serve();

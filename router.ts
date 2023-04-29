@@ -25,7 +25,7 @@ export default class Router {
 		this.dynamicRoutes = {};
 	}
 
-	routeFallback(url: string, func: (arg: string) => StringHashmap) {
+	routeFallback(url: string, func?: (arg: string) => StringHashmap) {
 		url = url + "/fallback.html";
 		const file = this.rootDir + url;
 
