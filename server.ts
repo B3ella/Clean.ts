@@ -12,7 +12,7 @@ export interface IDynamicRoutes {
 		func: (arg: string) => StringHashmap;
 	};
 }
-export interface htmlResponse {
+export interface HTMLResponse {
 	code: number;
 	response: string | Buffer;
 }
@@ -25,28 +25,23 @@ export default function serve(
 	port: number
 ) {
 	createServer((request, response) => {
-		let routeExist = false;
-
-		function respondWithPageNotFound() {
-			response.statusCode = 404;
-			response.end("404, nothing to see here");
+		function respondWith(htmlResponse: HTMLResponse) {
+			response.statusCode = htmlResponse.code;
+			response.end(htmlResponse.response);
 		}
 
-		function resondWithPageFound(responseEnd: string | Buffer) {
-			routeExist = true;
-			response.statusCode = 200;
-			response.end(responseEnd);
-		}
+		const notFound = { code: 404, response: "" };
 
 		if (!request.url) {
-			respondWithPageNotFound();
+			respondWith(notFound);
 			return;
 		}
 
 		const responseFile = staticRoutes[request.url];
 
 		if (responseFile) {
-			resondWithPageFound(readFileSync(responseFile));
+			const response = readFileSync(responseFile);
+			respondWith({ response, code: 200 });
 			return;
 		}
 
@@ -58,11 +53,11 @@ export default function serve(
 			const data = dynamicResponse.func(fallbackArg);
 			const htmlResponse = buildSeverSide(dynamicResponse.file, data);
 
-			resondWithPageFound(htmlResponse.response);
+			respondWith(htmlResponse);
 			return;
 		}
 
-		if (!routeExist) respondWithPageNotFound();
+		respondWith(notFound);
 	}).listen(port);
 
 	console.log("server on and listining on port", port);

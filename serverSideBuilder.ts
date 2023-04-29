@@ -1,11 +1,11 @@
 import { readFileSync } from "fs";
 
-import type { htmlResponse } from "server";
+import type { HTMLResponse } from "server";
 
 export default function buildSeverSide(
 	fileAdress: string,
 	querryData: any
-): htmlResponse {
+): HTMLResponse {
 	let file = readFileSync(fileAdress).toString();
 
 	const startChar = "{{";
