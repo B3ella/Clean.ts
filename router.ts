@@ -1,5 +1,5 @@
 import staticBuilder from "./staticBuilder";
-import mapFilesIn from "./mapFiles";
+import getFilesIn from "./mapFiles";
 import serve from "./server";
 import type { IDynamicRoutes } from "./server";
 
@@ -9,19 +9,22 @@ export default class Router {
 	rootDir: string;
 
 	constructor(dir: string) {
-		const files = mapFilesIn(dir);
+		this.dynamicRoutes = new Map<string, IDynamicRoutes>();
+		this.rootDir = dir;
+		this.staticRoutes = this.getStaticRoutes(dir);
+	}
 
+	private getStaticRoutes(dir: string): Map<string, string> {
 		const routes = new Map<string, string>();
-		files.forEach((file) => {
+		
+		getFilesIn(dir).forEach((file) => {
 			const url = file.replace(dir, "").replace("index.html", "");
+			
 			file = staticBuilder(file);
 
 			routes.set(url, file);
 		});
-
-		this.rootDir = dir;
-		this.staticRoutes = routes;
-		this.dynamicRoutes = new Map<string, IDynamicRoutes>();
+		return routes;
 	}
 
 	routeFallback(url: string, func?: (arg: string) => Map<string, string>) {
