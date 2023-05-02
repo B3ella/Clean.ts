@@ -3,44 +3,53 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = require("fs");
 function staticBuilder(fileObject, url) {
     var fileAdress = fileObject.get(url);
-    if (!fileAdress)
+    if (!fileAdress || nothingToBuild(fileAdress, url))
         return;
-    var notHtml = !fileAdress.endsWith(".html");
-    var isBuilt = url.includes("build");
-    var nothingToBuild = !(0, fs_1.readFileSync)(fileAdress).toString().includes("{<");
-    if (notHtml || isBuilt || nothingToBuild)
-        return;
+    var buildAdress = getBuildAddress(fileAdress);
     var file = buildFile(fileAdress);
-    var buildAdress = getBuildAdress(fileAdress);
     (0, fs_1.writeFileSync)(buildAdress, file);
     fileObject.set(url, buildAdress);
 }
 exports.default = staticBuilder;
-function buildFile(fileAdress) {
-    var file = (0, fs_1.readFileSync)(fileAdress).toString();
+function nothingToBuild(fileAdress, url) {
+    var notHtml = !fileAdress.endsWith(".html");
+    var isBuilt = url.includes("build");
+    if (notHtml || isBuilt)
+        return true;
+    var noComponents = !readToString(fileAdress).includes("{<");
+    return noComponents;
+}
+function readToString(fileAdress) {
+    return (0, fs_1.readFileSync)(fileAdress).toString();
+}
+function getBuildAddress(fileAdress) {
+    var dirPivot = fileAdress.lastIndexOf("/") + "/".length;
+    var fileName = fileAdress.slice(dirPivot);
+    var dirName = fileAdress.slice(0, dirPivot);
+    return dirName + "build" + fileName;
+}
+function buildFile(fileAdress, file) {
+    file = file !== null && file !== void 0 ? file : readToString(fileAdress);
     var compStart = "{<";
     var compEnd = "/>}";
-    var numberStarts = file.split(compStart).length - 1;
-    var numberOfEnds = file.split(compEnd).length - 1;
-    var sintaxError = numberOfEnds != numberStarts;
-    if (sintaxError)
-        return "error";
-    var nothingToBuild = numberStarts == 0;
-    if (nothingToBuild)
+    var hasComponent = file.includes(compStart) && file.includes(compEnd);
+    if (!hasComponent)
         return file;
-    var lastEnd = 0;
-    for (var i = 0; i < numberOfEnds; i++) {
-        var currStart = file.indexOf(compStart, lastEnd) + compStart.length;
-        var currEnd = file.indexOf(compEnd, currStart);
-        var flag = file.slice(currStart, currEnd);
-        var compontent = buildFile(getComponentAdress(flag, fileAdress));
-        var trigger = compStart + flag + compEnd;
-        file = file.replace(trigger, compontent);
-        lastEnd = currEnd;
-    }
-    return file;
+    var flag = getComponentFlag(file, { compEnd: compEnd, compStart: compStart });
+    var compontentAddress = getComponentAddress(flag, fileAdress);
+    var compontent = buildFile(compontentAddress);
+    var trigger = compStart + flag + compEnd;
+    file = file.replace(trigger, compontent);
+    return buildFile(fileAdress, file);
 }
-function getComponentAdress(flag, fileAdress) {
+function getComponentFlag(file, _a) {
+    var compStart = _a.compStart, compEnd = _a.compEnd;
+    var compStartIndex = file.indexOf(compStart) + compStart.length;
+    var compEndIndex = file.indexOf(compEnd, compStartIndex);
+    var flag = file.slice(compStartIndex, compEndIndex);
+    return flag;
+}
+function getComponentAddress(flag, fileAdress) {
     var src = getSrc(flag);
     var dirPivot = fileAdress.lastIndexOf("/") + "/".length;
     var dir = fileAdress.slice(0, dirPivot);
@@ -52,10 +61,4 @@ function getSrc(flag) {
     var srcStart = flag.indexOf(srcFlag) + srcFlag.length;
     var srcEnd = flag.indexOf('"', srcStart);
     return flag.slice(srcStart, srcEnd);
-}
-function getBuildAdress(fileAdress) {
-    var dirPivot = fileAdress.lastIndexOf("/") + "/".length;
-    var fileName = fileAdress.slice(dirPivot);
-    var dirName = fileAdress.slice(0, dirPivot);
-    return dirName + "build" + fileName;
 }

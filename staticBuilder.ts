@@ -7,7 +7,9 @@ export default function staticBuilder(fileObject: stringMap, url: string) {
 
 	if (!fileAdress || nothingToBuild(fileAdress, url)) return;
 
-	const { file, buildAdress } = getBuild(fileAdress);
+	const buildAdress = getBuildAddress(fileAdress);
+	const file = buildFile(fileAdress);
+
 	writeFileSync(buildAdress, file);
 	fileObject.set(url, buildAdress);
 }
@@ -17,15 +19,11 @@ function nothingToBuild(fileAdress: string, url: string): boolean {
 	const isBuilt = url.includes("build");
 	if (notHtml || isBuilt) return true;
 
-	const noComponents = !readFileSync(fileAdress).toString().includes("{<");
+	const noComponents = !readToString(fileAdress).includes("{<");
 	return noComponents;
 }
-
-function getBuild(fileAdress: string) {
-	const buildAdress = getBuildAddress(fileAdress);
-	const file = buildFile(fileAdress);
-
-	return { file, buildAdress };
+function readToString(fileAdress: string): string {
+	return readFileSync(fileAdress).toString();
 }
 
 function getBuildAddress(fileAdress: string): string {
@@ -36,8 +34,8 @@ function getBuildAddress(fileAdress: string): string {
 	return dirName + "build" + fileName;
 }
 
-function buildFile(fileAdress: string): string {
-	let file = readFileSync(fileAdress).toString();
+function buildFile(fileAdress: string, file?: string): string {
+	file = file ?? readToString(fileAdress);
 
 	const compStart = "{<";
 	const compEnd = "/>}";
@@ -53,7 +51,7 @@ function buildFile(fileAdress: string): string {
 	const trigger = compStart + flag + compEnd;
 	file = file.replace(trigger, compontent);
 
-	return buildFile(fileAdress);
+	return buildFile(fileAdress, file);
 }
 
 function getComponentFlag(
