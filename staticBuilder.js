@@ -1,19 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = require("fs");
-function staticBuilder(fileObject, url) {
-    var fileAdress = fileObject.get(url);
-    if (!fileAdress || nothingToBuild(fileAdress, url))
-        return;
+function staticBuilder(fileAdress) {
+    if (!fileAdress || nothingToBuild(fileAdress))
+        return fileAdress;
     var buildAdress = getBuildAddress(fileAdress);
     var file = buildFile(fileAdress);
     (0, fs_1.writeFileSync)(buildAdress, file);
-    fileObject.set(url, buildAdress);
+    return buildAdress;
 }
 exports.default = staticBuilder;
-function nothingToBuild(fileAdress, url) {
+function nothingToBuild(fileAdress) {
     var notHtml = !fileAdress.endsWith(".html");
-    var isBuilt = url.includes("build");
+    var isBuilt = fileAdress.includes("build");
     if (notHtml || isBuilt)
         return true;
     var noComponents = !readToString(fileAdress).includes("{<");

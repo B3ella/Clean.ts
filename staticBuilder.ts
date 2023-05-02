@@ -2,21 +2,19 @@ import { readFileSync, writeFileSync } from "fs";
 
 type stringMap = Map<string, string>;
 
-export default function staticBuilder(fileObject: stringMap, url: string) {
-	const fileAdress = fileObject.get(url);
-
-	if (!fileAdress || nothingToBuild(fileAdress, url)) return;
+export default function staticBuilder(fileAdress: string): string {
+	if (!fileAdress || nothingToBuild(fileAdress)) return fileAdress;
 
 	const buildAdress = getBuildAddress(fileAdress);
 	const file = buildFile(fileAdress);
 
 	writeFileSync(buildAdress, file);
-	fileObject.set(url, buildAdress);
+	return buildAdress;
 }
 
-function nothingToBuild(fileAdress: string, url: string): boolean {
+function nothingToBuild(fileAdress: string): boolean {
 	const notHtml = !fileAdress.endsWith(".html");
-	const isBuilt = url.includes("build");
+	const isBuilt = fileAdress.includes("build");
 	if (notHtml || isBuilt) return true;
 
 	const noComponents = !readToString(fileAdress).includes("{<");

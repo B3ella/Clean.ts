@@ -4,23 +4,22 @@ import serve, { createStringHashmap } from "./server";
 import type { IDynamicRoutes } from "./server";
 
 export default class Router {
-	urls: string[];
 	staticRoutes: Map<string, string>;
 	dynamicRoutes: Map<string, IDynamicRoutes>;
 	rootDir: string;
 
 	constructor(dir: string) {
 		const files = mapFilesIn(dir);
-		const urls = files.map((file) =>
-			file.replace(dir, "").replace("index.html", "")
-		);
 
-		const routes = createStringHashmap(urls, files);
+		const routes = new Map<string, string>();
+		files.forEach((file) => {
+			const url = file.replace(dir, "").replace("index.html", "");
+			file = staticBuilder(file);
 
-		urls.forEach((url) => staticBuilder(routes, url));
+			routes.set(url, file);
+		});
 
 		this.rootDir = dir;
-		this.urls = urls;
 		this.staticRoutes = routes;
 		this.dynamicRoutes = new Map<string, IDynamicRoutes>();
 	}

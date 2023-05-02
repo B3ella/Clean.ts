@@ -6,15 +6,16 @@ var server_1 = require("./server");
 var Router = /** @class */ (function () {
     function Router(dir) {
         var files = (0, mapFiles_1.default)(dir);
-        var urls = files.map(function (file) {
-            return file.replace(dir, "").replace("index.html", "");
+        var routes = new Map();
+        files.forEach(function (file) {
+            var url = file.replace(dir, "").replace("index.html", "");
+            file = (0, staticBuilder_1.default)(file);
+            routes.set(url, file);
         });
-        var routes = (0, server_1.createStringHashmap)(urls, files);
-        urls.forEach(function (url) { return (0, staticBuilder_1.default)(routes, url); });
         this.rootDir = dir;
-        this.urls = urls;
         this.staticRoutes = routes;
         this.dynamicRoutes = new Map();
+        console.log(routes);
     }
     Router.prototype.routeFallback = function (url, func) {
         url = url + "/fallback.html";
