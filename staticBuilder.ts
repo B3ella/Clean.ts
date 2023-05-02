@@ -1,22 +1,39 @@
 import { readFileSync, writeFileSync } from "fs";
 
-export default function staticBuilder(
-	fileObject: Map<string, string>,
-	url: string
-) {
+type stringMap = Map<string, string>;
+
+export default function staticBuilder(fileObject: stringMap, url: string) {
 	const fileAdress = fileObject.get(url);
 
-	if (!fileAdress) return;
+	if (!fileAdress || nothingToBuild(fileAdress, url)) return;
 
-	const notHtml = !fileAdress.endsWith(".html");
-	const isBuilt = url.includes("build");
-	const nothingToBuild = !readFileSync(fileAdress).toString().includes("{<");
-	if (notHtml || isBuilt || nothingToBuild) return;
-
-	const file = buildFile(fileAdress);
-	const buildAdress = getBuildAdress(fileAdress);
+	const { file, buildAdress } = getBuild(fileAdress);
 	writeFileSync(buildAdress, file);
 	fileObject.set(url, buildAdress);
+}
+
+function nothingToBuild(fileAdress: string, url: string): boolean {
+	const notHtml = !fileAdress.endsWith(".html");
+	const isBuilt = url.includes("build");
+	if (notHtml || isBuilt) return true;
+
+	const noComponents = !readFileSync(fileAdress).toString().includes("{<");
+	return noComponents;
+}
+
+function getBuild(fileAdress: string) {
+	const buildAdress = getBuildAddress(fileAdress);
+	const file = buildFile(fileAdress);
+
+	return { file, buildAdress };
+}
+
+function getBuildAddress(fileAdress: string): string {
+	const dirPivot = fileAdress.lastIndexOf("/") + "/".length;
+	const fileName = fileAdress.slice(dirPivot);
+	const dirName = fileAdress.slice(0, dirPivot);
+
+	return dirName + "build" + fileName;
 }
 
 function buildFile(fileAdress: string): string {
@@ -25,30 +42,31 @@ function buildFile(fileAdress: string): string {
 	const compStart = "{<";
 	const compEnd = "/>}";
 
-	const numberStarts = file.split(compStart).length - 1;
-	const numberOfEnds = file.split(compEnd).length - 1;
+	const hasComponent = file.includes(compStart) && file.includes(compEnd);
+	if (!hasComponent) return file;
 
-	const sintaxError = numberOfEnds != numberStarts;
-	if (sintaxError) return "error";
+	const flag = getComponentFlag(file, { compEnd, compStart });
 
-	const nothingToBuild = numberStarts == 0;
-	if (nothingToBuild) return file;
+	const compontentAddress = getComponentAddress(flag, fileAdress);
+	const compontent = buildFile(compontentAddress);
 
-	let lastEnd = 0;
-	for (let i = 0; i < numberOfEnds; i++) {
-		const currStart = file.indexOf(compStart, lastEnd) + compStart.length;
-		const currEnd = file.indexOf(compEnd, currStart);
-		const flag = file.slice(currStart, currEnd);
-		const compontent = buildFile(getComponentAdress(flag, fileAdress));
+	const trigger = compStart + flag + compEnd;
+	file = file.replace(trigger, compontent);
 
-		const trigger = compStart + flag + compEnd;
-		file = file.replace(trigger, compontent);
-		lastEnd = currEnd;
-	}
-
-	return file;
+	return buildFile(fileAdress);
 }
-function getComponentAdress(flag: string, fileAdress: string): string {
+
+function getComponentFlag(
+	file: string,
+	{ compStart, compEnd }: { compStart: string; compEnd: string }
+) {
+	const compStartIndex = file.indexOf(compStart) + compStart.length;
+	const compEndIndex = file.indexOf(compEnd, compStartIndex);
+	const flag = file.slice(compStartIndex, compEndIndex);
+	return flag;
+}
+
+function getComponentAddress(flag: string, fileAdress: string): string {
 	const src = getSrc(flag);
 
 	const dirPivot = fileAdress.lastIndexOf("/") + "/".length;
@@ -63,12 +81,4 @@ function getSrc(flag: string): string {
 	const srcEnd = flag.indexOf('"', srcStart);
 
 	return flag.slice(srcStart, srcEnd);
-}
-
-function getBuildAdress(fileAdress: string): string {
-	const dirPivot = fileAdress.lastIndexOf("/") + "/".length;
-	const fileName = fileAdress.slice(dirPivot);
-	const dirName = fileAdress.slice(0, dirPivot);
-
-	return dirName + "build" + fileName;
 }
