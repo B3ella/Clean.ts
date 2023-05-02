@@ -2,14 +2,10 @@ import { createServer } from "http";
 import { readFileSync } from "node:fs";
 import buildSeverSide from "./serverSideBuilder";
 
-export interface StringHashmap {
-	[key: string]: string;
-}
-
 export interface IDynamicRoutes {
 	[key: string]: {
 		file: string;
-		func?: (arg: string) => StringHashmap;
+		func?: (arg: string) => Map<string, string>;
 	};
 }
 export interface HTMLResponse {
@@ -17,7 +13,7 @@ export interface HTMLResponse {
 	response: string | Buffer;
 }
 interface IServeParams {
-	staticRoutes: StringHashmap;
+	staticRoutes: Map<string, string>;
 	dynamicRoutes: IDynamicRoutes;
 }
 export default function serve(
@@ -37,7 +33,7 @@ export default function serve(
 			return;
 		}
 
-		const responseFile = staticRoutes[request.url];
+		const responseFile = staticRoutes.get(request.url);
 
 		if (responseFile) {
 			const response = readFileSync(responseFile);
@@ -80,14 +76,14 @@ function getFallback(url: string) {
 export function createStringHashmap(
 	keys: string[],
 	values: string[]
-): StringHashmap {
-	const hashmap = {} as StringHashmap;
+): Map<string, string> {
+	const hashmap = new Map<string, string>();
 
 	for (let i = 0; i < keys.length; i++) {
 		const key = keys[i];
 		const value = values[i];
 
-		hashmap[key] = value;
+		hashmap.set(key, value);
 	}
 
 	return hashmap;

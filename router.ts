@@ -1,11 +1,11 @@
 import staticBuilder from "./staticBuilder";
 import mapFilesIn from "./mapFiles";
 import serve, { createStringHashmap } from "./server";
-import type { IDynamicRoutes, StringHashmap } from "./server";
+import type { IDynamicRoutes } from "./server";
 
 export default class Router {
 	urls: string[];
-	staticRoutes: StringHashmap;
+	staticRoutes: Map<string, string>;
 	dynamicRoutes: IDynamicRoutes;
 	rootDir: string;
 
@@ -25,7 +25,7 @@ export default class Router {
 		this.dynamicRoutes = {};
 	}
 
-	routeFallback(url: string, func?: (arg: string) => StringHashmap) {
+	routeFallback(url: string, func?: (arg: string) => Map<string, string>) {
 		url = url + "/fallback.html";
 		const file = this.rootDir + url;
 
