@@ -1,6 +1,6 @@
 import staticBuilder from "./staticBuilder";
 import mapFilesIn from "./mapFiles";
-import serve, { createStringHashmap } from "./server";
+import serve from "./server";
 import type { IDynamicRoutes } from "./server";
 
 export default class Router {

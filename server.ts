@@ -71,19 +71,3 @@ function getFallback(url: string) {
 
 	return { fallbackArg, fallbackUrl };
 }
-
-export function createStringHashmap(
-	keys: string[],
-	values: string[]
-): Map<string, string> {
-	const hashmap = new Map<string, string>();
-
-	for (let i = 0; i < keys.length; i++) {
-		const key = keys[i];
-		const value = values[i];
-
-		hashmap.set(key, value);
-	}
-
-	return hashmap;
-}
