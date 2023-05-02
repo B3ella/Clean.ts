@@ -4,7 +4,7 @@ import type { HTMLResponse } from "./server";
 
 export default function buildSeverSide(
 	fileAdress: string,
-	querryData: any
+	querryData: Map<string, string>
 ): HTMLResponse {
 	let file = readFileSync(fileAdress).toString();
 
@@ -25,7 +25,8 @@ export default function buildSeverSide(
 		const currStart = file.indexOf(startChar, lastEnd) + startChar.length;
 		const currEnd = file.indexOf(endChar, currStart);
 		const flag = file.slice(currStart, currEnd);
-		const substitute = querryData[flag.trim()];
+		const substitute = querryData.get(flag.trim());
+		if (!substitute) continue;
 		const trigger = startChar + flag + endChar;
 		file = file.replace(trigger, substitute);
 	}

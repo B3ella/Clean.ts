@@ -3,18 +3,17 @@ import { readFileSync } from "node:fs";
 import buildSeverSide from "./serverSideBuilder";
 
 export interface IDynamicRoutes {
-	[key: string]: {
-		file: string;
-		func?: (arg: string) => Map<string, string>;
-	};
+	file: string;
+	func?: (arg: string) => Map<string, string>;
 }
+
 export interface HTMLResponse {
 	code: number;
 	response: string | Buffer;
 }
 interface IServeParams {
 	staticRoutes: Map<string, string>;
-	dynamicRoutes: IDynamicRoutes;
+	dynamicRoutes: Map<string, IDynamicRoutes>;
 }
 export default function serve(
 	{ staticRoutes, dynamicRoutes }: IServeParams,
@@ -43,7 +42,7 @@ export default function serve(
 
 		const { fallbackArg, fallbackUrl } = getFallback(request.url);
 
-		const dynamicResponse = dynamicRoutes[fallbackUrl];
+		const dynamicResponse = dynamicRoutes.get(fallbackUrl);
 
 		if (dynamicResponse) {
 			if (!dynamicResponse.func) {

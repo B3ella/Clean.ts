@@ -2,7 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = require("fs");
 function staticBuilder(fileObject, url) {
-    var fileAdress = fileObject[url];
+    var fileAdress = fileObject.get(url);
+    if (!fileAdress)
+        return;
     var notHtml = !fileAdress.endsWith(".html");
     var isBuilt = url.includes("build");
     var nothingToBuild = !(0, fs_1.readFileSync)(fileAdress).toString().includes("{<");
@@ -11,7 +13,7 @@ function staticBuilder(fileObject, url) {
     var file = buildFile(fileAdress);
     var buildAdress = getBuildAdress(fileAdress);
     (0, fs_1.writeFileSync)(buildAdress, file);
-    fileObject[url] = buildAdress;
+    fileObject.set(url, buildAdress);
 }
 exports.default = staticBuilder;
 function buildFile(fileAdress) {

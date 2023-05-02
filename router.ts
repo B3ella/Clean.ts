@@ -6,7 +6,7 @@ import type { IDynamicRoutes } from "./server";
 export default class Router {
 	urls: string[];
 	staticRoutes: Map<string, string>;
-	dynamicRoutes: IDynamicRoutes;
+	dynamicRoutes: Map<string, IDynamicRoutes>;
 	rootDir: string;
 
 	constructor(dir: string) {
@@ -22,14 +22,14 @@ export default class Router {
 		this.rootDir = dir;
 		this.urls = urls;
 		this.staticRoutes = routes;
-		this.dynamicRoutes = {};
+		this.dynamicRoutes = new Map<string, IDynamicRoutes>();
 	}
 
 	routeFallback(url: string, func?: (arg: string) => Map<string, string>) {
 		url = url + "/fallback.html";
 		const file = this.rootDir + url;
 
-		this.dynamicRoutes[url] = { file, func };
+		this.dynamicRoutes.set(url, { file, func });
 	}
 
 	serve(port?: number) {

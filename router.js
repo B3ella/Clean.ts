@@ -14,12 +14,12 @@ var Router = /** @class */ (function () {
         this.rootDir = dir;
         this.urls = urls;
         this.staticRoutes = routes;
-        this.dynamicRoutes = {};
+        this.dynamicRoutes = new Map();
     }
     Router.prototype.routeFallback = function (url, func) {
         url = url + "/fallback.html";
         var file = this.rootDir + url;
-        this.dynamicRoutes[url] = { file: file, func: func };
+        this.dynamicRoutes.set(url, { file: file, func: func });
     };
     Router.prototype.serve = function (port) {
         var _a = this, staticRoutes = _a.staticRoutes, dynamicRoutes = _a.dynamicRoutes;

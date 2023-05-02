@@ -16,7 +16,9 @@ function buildSeverSide(fileAdress, querryData) {
         var currStart = file.indexOf(startChar, lastEnd) + startChar.length;
         var currEnd = file.indexOf(endChar, currStart);
         var flag = file.slice(currStart, currEnd);
-        var substitute = querryData[flag.trim()];
+        var substitute = querryData.get(flag.trim());
+        if (!substitute)
+            continue;
         var trigger = startChar + flag + endChar;
         file = file.replace(trigger, substitute);
     }

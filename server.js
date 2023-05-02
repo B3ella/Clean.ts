@@ -16,14 +16,14 @@ function serve(_a, port) {
             respondWith(notFound);
             return;
         }
-        var responseFile = staticRoutes[request.url];
+        var responseFile = staticRoutes.get(request.url);
         if (responseFile) {
             var response_1 = (0, node_fs_1.readFileSync)(responseFile);
             respondWith({ response: response_1, code: 200 });
             return;
         }
         var _a = getFallback(request.url), fallbackArg = _a.fallbackArg, fallbackUrl = _a.fallbackUrl;
-        var dynamicResponse = dynamicRoutes[fallbackUrl];
+        var dynamicResponse = dynamicRoutes.get(fallbackUrl);
         if (dynamicResponse) {
             if (!dynamicResponse.func) {
                 var response_2 = (0, node_fs_1.readFileSync)(dynamicResponse.file);
@@ -47,11 +47,11 @@ function getFallback(url) {
     return { fallbackArg: fallbackArg, fallbackUrl: fallbackUrl };
 }
 function createStringHashmap(keys, values) {
-    var hashmap = {};
+    var hashmap = new Map();
     for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
         var value = values[i];
-        hashmap[key] = value;
+        hashmap.set(key, value);
     }
     return hashmap;
 }

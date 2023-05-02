@@ -1,8 +1,12 @@
 import { readFileSync, writeFileSync } from "fs";
-import type { StringHashmap } from "./server";
 
-export default function staticBuilder(fileObject: StringHashmap, url: string) {
-	const fileAdress = fileObject[url];
+export default function staticBuilder(
+	fileObject: Map<string, string>,
+	url: string
+) {
+	const fileAdress = fileObject.get(url);
+
+	if (!fileAdress) return;
 
 	const notHtml = !fileAdress.endsWith(".html");
 	const isBuilt = url.includes("build");
@@ -12,7 +16,7 @@ export default function staticBuilder(fileObject: StringHashmap, url: string) {
 	const file = buildFile(fileAdress);
 	const buildAdress = getBuildAdress(fileAdress);
 	writeFileSync(buildAdress, file);
-	fileObject[url] = buildAdress;
+	fileObject.set(url, buildAdress);
 }
 
 function buildFile(fileAdress: string): string {
@@ -68,4 +72,3 @@ function getBuildAdress(fileAdress: string): string {
 
 	return dirName + "build" + fileName;
 }
-
