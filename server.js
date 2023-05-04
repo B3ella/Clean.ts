@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createStringHashmap = void 0;
 var http_1 = require("http");
 var node_fs_1 = require("node:fs");
 var serverSideBuilder_1 = require("./serverSideBuilder");
@@ -46,13 +45,3 @@ function getFallback(url) {
     var fallbackUrl = url.slice(0, pivot) + "fallback.html";
     return { fallbackArg: fallbackArg, fallbackUrl: fallbackUrl };
 }
-function createStringHashmap(keys, values) {
-    var hashmap = new Map();
-    for (var i = 0; i < keys.length; i++) {
-        var key = keys[i];
-        var value = values[i];
-        hashmap.set(key, value);
-    }
-    return hashmap;
-}
-exports.createStringHashmap = createStringHashmap;

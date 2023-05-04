@@ -5,18 +5,19 @@ var mapFiles_1 = require("./mapFiles");
 var server_1 = require("./server");
 var Router = /** @class */ (function () {
     function Router(dir) {
-        var files = (0, mapFiles_1.default)(dir);
+        this.dynamicRoutes = new Map();
+        this.rootDir = dir;
+        this.staticRoutes = this.getStaticRoutes(dir);
+    }
+    Router.prototype.getStaticRoutes = function (dir) {
         var routes = new Map();
-        files.forEach(function (file) {
+        (0, mapFiles_1.default)(dir).forEach(function (file) {
             var url = file.replace(dir, "").replace("index.html", "");
             file = (0, staticBuilder_1.default)(file);
             routes.set(url, file);
         });
-        this.rootDir = dir;
-        this.staticRoutes = routes;
-        this.dynamicRoutes = new Map();
-        console.log(routes);
-    }
+        return routes;
+    };
     Router.prototype.routeFallback = function (url, func) {
         url = url + "/fallback.html";
         var file = this.rootDir + url;

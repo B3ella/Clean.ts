@@ -2,10 +2,16 @@ import { createServer } from "http";
 import { readFileSync } from "node:fs";
 import buildSeverSide from "./serverSideBuilder";
 
-export interface IDynamicRoutes {
-	file: string;
-	func?: (arg: string) => Map<string, string>;
-}
+export type BackendFunction = (arg: string) => Map<string, string>;
+
+export type IDynamicRoutes = Map<
+	string,
+	{
+		file: string;
+		func?: BackendFunction;
+	}
+>;
+export type StaticRoutes = Map<string, string>;
 
 export interface HTMLResponse {
 	code: number;
@@ -13,7 +19,7 @@ export interface HTMLResponse {
 }
 interface IServeParams {
 	staticRoutes: Map<string, string>;
-	dynamicRoutes: Map<string, IDynamicRoutes>;
+	dynamicRoutes: IDynamicRoutes;
 }
 export default function serve(
 	{ staticRoutes, dynamicRoutes }: IServeParams,
