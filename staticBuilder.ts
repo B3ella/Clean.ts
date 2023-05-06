@@ -1,7 +1,5 @@
 import { readFileSync, writeFileSync } from "fs";
 
-type stringMap = Map<string, string>;
-
 export default function staticBuilder(fileAdress: string): string {
 	if (!fileAdress || nothingToBuild(fileAdress)) return fileAdress;
 
@@ -46,8 +44,9 @@ function buildFile(fileAdress: string, file?: string): string {
 	const compontentAddress = getComponentAddress(flag, fileAdress);
 	const compontent = buildFile(compontentAddress);
 
+	const compontentBody = getHeadAndBody(compontent).body;
 	const trigger = compStart + flag + compEnd;
-	file = file.replace(trigger, compontent);
+	file = file.replace(trigger, compontentBody);
 
 	return buildFile(fileAdress, file);
 }
@@ -77,4 +76,31 @@ function getSrc(flag: string): string {
 	const srcEnd = flag.indexOf('"', srcStart);
 
 	return flag.slice(srcStart, srcEnd);
+}
+
+interface HeadAndBody {
+	head?: string;
+	body: string;
+}
+function getHeadAndBody(compontent: string): HeadAndBody {
+	const containHead = compontent.includes("<head>");
+	const head = containHead ? getHead(compontent) : undefined;
+
+	const containBody = compontent.includes("<body>");
+	const body = containBody ? getBody(compontent) : compontent;
+
+	return { head, body };
+}
+function getHead(compontent: string): string {
+	const headStart = compontent.indexOf("<head>") + "<head>".length;
+	const headEnd = compontent.indexOf("</head>");
+
+	return compontent.slice(headStart, headEnd);
+}
+
+function getBody(compontent: string): string {
+	const bodyStart = compontent.indexOf("<body>") + "<body>".length;
+	const bodyEnd = compontent.indexOf("</body>");
+
+	return compontent.slice(bodyStart, bodyEnd);
 }

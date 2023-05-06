@@ -37,8 +37,9 @@ function buildFile(fileAdress, file) {
     var flag = getComponentFlag(file, { compEnd: compEnd, compStart: compStart });
     var compontentAddress = getComponentAddress(flag, fileAdress);
     var compontent = buildFile(compontentAddress);
+    var compontentBody = getHeadAndBody(compontent).body;
     var trigger = compStart + flag + compEnd;
-    file = file.replace(trigger, compontent);
+    file = file.replace(trigger, compontentBody);
     return buildFile(fileAdress, file);
 }
 function getComponentFlag(file, _a) {
@@ -60,4 +61,21 @@ function getSrc(flag) {
     var srcStart = flag.indexOf(srcFlag) + srcFlag.length;
     var srcEnd = flag.indexOf('"', srcStart);
     return flag.slice(srcStart, srcEnd);
+}
+function getHeadAndBody(compontent) {
+    var containHead = compontent.includes("<head>");
+    var head = containHead ? getHead(compontent) : undefined;
+    var containBody = compontent.includes("<body>");
+    var body = containBody ? getBody(compontent) : compontent;
+    return { head: head, body: body };
+}
+function getHead(compontent) {
+    var headStart = compontent.indexOf("<head>") + "<head>".length;
+    var headEnd = compontent.indexOf("</head>");
+    return compontent.slice(headStart, headEnd);
+}
+function getBody(compontent) {
+    var bodyStart = compontent.indexOf("<body>") + "<body>".length;
+    var bodyEnd = compontent.indexOf("</body>");
+    return compontent.slice(bodyStart, bodyEnd);
 }
