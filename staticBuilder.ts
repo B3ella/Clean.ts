@@ -35,7 +35,7 @@ function getBuildAddress(fileAdress: string): string {
 function buildFile(fileAdress: string, file?: string): string {
 	file = file ?? readToString(fileAdress);
 
-	const compStart = "{<";
+	const compStart = "{<div";
 	const compEnd = "/>}";
 
 	const hasComponent = file.includes(compStart) && file.includes(compEnd);

@@ -29,7 +29,7 @@ function getBuildAddress(fileAdress) {
 }
 function buildFile(fileAdress, file) {
     file = file !== null && file !== void 0 ? file : readToString(fileAdress);
-    var compStart = "{<";
+    var compStart = "{<div";
     var compEnd = "/>}";
     var hasComponent = file.includes(compStart) && file.includes(compEnd);
     if (!hasComponent)
