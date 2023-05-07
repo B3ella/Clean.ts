@@ -28,7 +28,7 @@ export default class Router {
 	}
 
 	routeFallback(url: string, func?: BackendFunction) {
-		url = url + "/fallback.html";
+		url = url + "/fallback/index.html";
 		const file = this.rootDir + url;
 
 		this.dynamicRoutes.set(url, { file, func });

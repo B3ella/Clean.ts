@@ -19,7 +19,7 @@ var Router = /** @class */ (function () {
         return routes;
     };
     Router.prototype.routeFallback = function (url, func) {
-        url = url + "/fallback.html";
+        url = url + "/fallback/index.html";
         var file = this.rootDir + url;
         this.dynamicRoutes.set(url, { file: file, func: func });
     };

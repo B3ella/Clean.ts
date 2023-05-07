@@ -73,7 +73,7 @@ export default function serve(
 function getFallback(url: string) {
 	const pivot = url.lastIndexOf("/") + 1;
 	const fallbackArg = url.slice(pivot);
-	const fallbackUrl = url.slice(0, pivot) + "fallback.html";
+	const fallbackUrl = url.slice(0, pivot) + "fallback/index.html";
 
 	return { fallbackArg, fallbackUrl };
 }

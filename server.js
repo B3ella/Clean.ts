@@ -42,6 +42,6 @@ exports.default = serve;
 function getFallback(url) {
     var pivot = url.lastIndexOf("/") + 1;
     var fallbackArg = url.slice(pivot);
-    var fallbackUrl = url.slice(0, pivot) + "fallback.html";
+    var fallbackUrl = url.slice(0, pivot) + "fallback/index.html";
     return { fallbackArg: fallbackArg, fallbackUrl: fallbackUrl };
 }
