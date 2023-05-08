@@ -1,6 +1,7 @@
 import { createServer } from "http";
 import { readFileSync } from "node:fs";
 import buildSeverSide from "./serverSideBuilder";
+import { getFallback } from "fallbackRules";
 
 export type BackendFunction = (arg: string) => Map<string, string>;
 
@@ -68,12 +69,4 @@ export default function serve(
 	}).listen(port);
 
 	console.log("server on and listining on port", port);
-}
-
-function getFallback(url: string) {
-	const pivot = url.lastIndexOf("/") + 1;
-	const fallbackArg = url.slice(pivot);
-	const fallbackUrl = url.slice(0, pivot) + "fallback/index.html";
-
-	return { fallbackArg, fallbackUrl };
 }

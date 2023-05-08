@@ -2,6 +2,7 @@ import staticBuilder from "./staticBuilder";
 import getFilesIn from "./mapFiles";
 import serve, { type BackendFunction, type StaticRoutes } from "./server";
 import type { IDynamicRoutes } from "./server";
+import { getFallbackUrl } from "fallbackRules";
 
 export default class Router {
 	staticRoutes: StaticRoutes;
@@ -27,8 +28,8 @@ export default class Router {
 		return routes;
 	}
 
-	routeFallback(url: string, func?: BackendFunction) {
-		url = url + "/fallback/index.html";
+	routeFallback(dir: string, func?: BackendFunction) {
+		const url = getFallbackUrl(dir)
 		const file = this.rootDir + url;
 
 		this.dynamicRoutes.set(url, { file, func });
