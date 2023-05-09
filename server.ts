@@ -1,7 +1,7 @@
 import { createServer } from "http";
 import { readFileSync } from "node:fs";
 import buildSeverSide from "./serverSideBuilder";
-import { getFallback } from "fallbackRules";
+import { getFallback } from "./fallbackRules";
 
 export type BackendFunction = (arg: string) => Map<string, string>;
 

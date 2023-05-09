@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var staticBuilder_1 = require("./staticBuilder");
 var mapFiles_1 = require("./mapFiles");
 var server_1 = require("./server");
+var fallbackRules_1 = require("./fallbackRules");
 var Router = /** @class */ (function () {
     function Router(dir) {
         this.dynamicRoutes = new Map();
@@ -18,8 +19,8 @@ var Router = /** @class */ (function () {
         });
         return routes;
     };
-    Router.prototype.routeFallback = function (url, func) {
-        url = url + "/fallback/index.html";
+    Router.prototype.routeFallback = function (dir, func) {
+        var url = (0, fallbackRules_1.getFallbackUrl)(dir);
         var file = this.rootDir + url;
         this.dynamicRoutes.set(url, { file: file, func: func });
     };

@@ -2,7 +2,7 @@ import staticBuilder from "./staticBuilder";
 import getFilesIn from "./mapFiles";
 import serve, { type BackendFunction, type StaticRoutes } from "./server";
 import type { IDynamicRoutes } from "./server";
-import { getFallbackUrl } from "fallbackRules";
+import { getFallbackUrl } from "./fallbackRules";
 
 export default class Router {
 	staticRoutes: StaticRoutes;

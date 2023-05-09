@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var http_1 = require("http");
 var node_fs_1 = require("node:fs");
 var serverSideBuilder_1 = require("./serverSideBuilder");
+var fallbackRules_1 = require("./fallbackRules");
 function serve(_a, port) {
     var staticRoutes = _a.staticRoutes, dynamicRoutes = _a.dynamicRoutes;
     (0, http_1.createServer)(function (request, response) {
@@ -21,7 +22,7 @@ function serve(_a, port) {
             respondWith({ response: response_1, code: 200 });
             return;
         }
-        var _a = getFallback(request.url), fallbackArg = _a.fallbackArg, fallbackUrl = _a.fallbackUrl;
+        var _a = (0, fallbackRules_1.getFallback)(request.url), fallbackArg = _a.fallbackArg, fallbackUrl = _a.fallbackUrl;
         var dynamicResponse = dynamicRoutes.get(fallbackUrl);
         if (dynamicResponse) {
             if (!dynamicResponse.func) {
@@ -39,9 +40,3 @@ function serve(_a, port) {
     console.log("server on and listining on port", port);
 }
 exports.default = serve;
-function getFallback(url) {
-    var pivot = url.lastIndexOf("/") + 1;
-    var fallbackArg = url.slice(pivot);
-    var fallbackUrl = url.slice(0, pivot) + "fallback/index.html";
-    return { fallbackArg: fallbackArg, fallbackUrl: fallbackUrl };
-}
