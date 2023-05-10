@@ -101,7 +101,34 @@ function getElement(compontent: string, elementName: string): string {
 	return compontent.slice(elementStart, elementEnd);
 }
 
-//To-do
 function mountComponent(compontent: string, atributes: StringMap): string {
-	return compontent;
+	const nothingToBuild = noAtributesNecessary(compontent);
+	if (nothingToBuild) return compontent;
+
+	const { atribute, trigger } = getFirstAtribute(compontent);
+	const value = atributes.get(atribute) ?? "";
+
+	compontent = compontent.replace(trigger, value);
+
+	return mountComponent(compontent, atributes);
+}
+
+function noAtributesNecessary(compontent: string): boolean {
+	const noOpen = !compontent.includes("{{");
+	const noClose = !compontent.includes("}}");
+
+	return noOpen || noClose;
+}
+
+function getFirstAtribute(compontent: string): {
+	atribute: string;
+	trigger: string;
+} {
+	const start = compontent.indexOf("{{") + 2;
+	const end = compontent.indexOf("}}");
+
+	const atribute = compontent.slice(start, end);
+	const trigger = `{{${atribute}}}`;
+
+	return { atribute, trigger };
 }

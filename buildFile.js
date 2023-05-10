@@ -71,7 +71,25 @@ function getElement(compontent, elementName) {
     var elementEnd = compontent.indexOf(elementCloseTag);
     return compontent.slice(elementStart, elementEnd);
 }
-//To-do
 function mountComponent(compontent, atributes) {
-    return compontent;
+    var _a;
+    var nothingToBuild = noAtributesNecessary(compontent);
+    if (nothingToBuild)
+        return compontent;
+    var _b = getFirstAtribute(compontent), atribute = _b.atribute, trigger = _b.trigger;
+    var value = (_a = atributes.get(atribute)) !== null && _a !== void 0 ? _a : "";
+    compontent = compontent.replace(trigger, value);
+    return mountComponent(compontent, atributes);
+}
+function noAtributesNecessary(compontent) {
+    var noOpen = !compontent.includes("{{");
+    var noClose = !compontent.includes("}}");
+    return noOpen || noClose;
+}
+function getFirstAtribute(compontent) {
+    var start = compontent.indexOf("{{") + 2;
+    var end = compontent.indexOf("}}");
+    var atribute = compontent.slice(start, end);
+    var trigger = "{{".concat(atribute, "}}");
+    return { atribute: atribute, trigger: trigger };
 }
