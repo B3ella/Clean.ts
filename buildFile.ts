@@ -49,7 +49,17 @@ function buildComponent(element: string, addrs: string): string {
 
 //To-do
 function isAutoClose(element: string): boolean {
-	return true;
+	const openTag = "{<div";
+	const closeTag = ">}";
+	const autoCloseTag = "/>}";
+
+	const indexOfOpenTag = element.indexOf(openTag);
+
+	const indexOfCloseTag = element.indexOf(closeTag) + closeTag.length;
+	const indexOfAutoCloseTag =
+		element.indexOf(autoCloseTag) + autoCloseTag.length;
+
+	return indexOfAutoCloseTag === indexOfCloseTag;
 }
 
 //To-do

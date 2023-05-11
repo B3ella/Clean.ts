@@ -36,7 +36,13 @@ function buildComponent(element, addrs) {
 }
 //To-do
 function isAutoClose(element) {
-    return true;
+    var openTag = "{<div";
+    var closeTag = ">}";
+    var autoCloseTag = "/>}";
+    var indexOfOpenTag = element.indexOf(openTag);
+    var indexOfCloseTag = element.indexOf(closeTag) + closeTag.length;
+    var indexOfAutoCloseTag = element.indexOf(autoCloseTag) + autoCloseTag.length;
+    return indexOfAutoCloseTag === indexOfCloseTag;
 }
 //To-do
 function getAtributes(element) {
