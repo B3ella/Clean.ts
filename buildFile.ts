@@ -47,13 +47,9 @@ function buildComponent(element: string, addrs: string): string {
 	return buildFile(addrs, compontent);
 }
 
-//To-do
 function isAutoClose(element: string): boolean {
-	const openTag = "{<div";
 	const closeTag = ">}";
 	const autoCloseTag = "/>}";
-
-	const indexOfOpenTag = element.indexOf(openTag);
 
 	const indexOfCloseTag = element.indexOf(closeTag) + closeTag.length;
 	const indexOfAutoCloseTag =
