@@ -6,3 +6,7 @@
 
 ## All test files
 /public/**
+
+## All node modules
+
+/node_modules/**
