@@ -1,0 +1,8 @@
+
+
+## All build files
+*.js
+
+
+## All test files
+/public/**
