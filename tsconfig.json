@@ -21,5 +21,8 @@
 		"typeRoots": ["src/types", "node_modules/@types"],
 		"baseUrl": "."
 	},
-	"include": ["*.ts", "main.ts", "mapFiles.ts", "router.test.ts"]
+	"include": ["*.ts", "main.ts", "mapFiles.ts", "router.test.ts"],
+	"typeAcquisition": {
+		"include": ["jest"]
+	}
 }
