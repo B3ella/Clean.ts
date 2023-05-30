@@ -10,3 +10,6 @@
 ## All node modules
 
 /node_modules/**
+
+## My main file
+main.ts
