@@ -138,3 +138,6 @@ function getFirstAtribute(compontent: string): {
 
 	return { atribute, trigger };
 }
+
+const testApi = {nothingToBuild, buildComponent, buildFile, getComponentElement, buildComponent, isAutoClose, getAtributes, getAtributesWithChildren, getDirAdress, getSrc, getHeadAndBody,mountComponent, noAtributesNecessary,getFirstAtribute, getElement}
+export {testApi}
