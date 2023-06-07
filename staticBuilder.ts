@@ -30,3 +30,5 @@ function getBuildAddress(fileAdress: string): string {
 
 	return dirName + "build" + fileName;
 }
+
+const testApi = {getBuildAddress, readToString, staticBuilder, nothingToBuild}
